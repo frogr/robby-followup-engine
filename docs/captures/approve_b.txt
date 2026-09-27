@@ -1,0 +1,2 @@
+$ bin/followup approve --all
+approved 24

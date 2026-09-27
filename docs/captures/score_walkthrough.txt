@@ -1,0 +1,27 @@
+Q-1016  Ray Klein  $12,500  replied_unanswered
+  why           Customer replied 11.5 days ago and nobody has answered
+  base score    100
+  amount bonus  min(12500 / 1000 * 1, 15) = 12.5
+  age decay     not applied (generic_checkin only)
+  score         100 + 12.5 = 112.5
+  rounded       112.5
+  policy says   112.5  (matches)
+
+Q-1026  Hank Crane  $22,000  viewed_no_reply
+  why           Viewed the quote 17h ago, no reply and no follow-up since
+  base score    70
+  amount bonus  min(22000 / 1000 * 1, 15) = 15
+  age decay     not applied (generic_checkin only)
+  score         70 + 15 = 85
+  rounded       85
+  policy says   85  (matches)
+
+Q-1025  Karen Nguyen  $850  generic_checkin
+  why           No contact in 6.9 days, quote is 6.9 days old
+  base score    20
+  amount bonus  min(850 / 1000 * 1, 15) = 0.85
+  age           (2026-08-17T09:00:00Z - 2026-08-10T12:00:00Z) = 6.875 days
+  age decay     1 - 6.875 / 60 = 0.8854
+  score         (20 + 0.85) * 0.8854 = 18.461
+  rounded       18.5
+  policy says   18.5  (matches)

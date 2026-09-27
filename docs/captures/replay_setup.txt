@@ -1,0 +1,5 @@
+$ FOLLOWUP_DB=replay.sqlite3 bin/followup ingest | tail -2 && FOLLOWUP_DB=replay.sqlite3 bin/followup draft --now 2026-08-13T09:00:00Z && FOLLOWUP_DB=replay.sqlite3 bin/followup approve --all
+inserted                       82
+already stored                 0
+draft at 2026-08-13T09:00:00Z (2026-W33): 19 created, 0 already drafted
+approved 19

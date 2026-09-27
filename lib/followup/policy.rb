@@ -11,7 +11,8 @@ module Followup
 
     COOLDOWN_DAYS      = 3     # per customer, across all of their quotes
     MAX_AGE_DAYS       = 60    # older quotes are never candidates
-    MAX_FOLLOWUPS_PER_QUOTE = 3 # message_sent events plus our own sent messages
+    MAX_FOLLOWUPS_PER_QUOTE = 3 # message_sent events plus our own sent messages;
+                                # does not apply while a customer reply is unanswered
     VIEW_WINDOW_HOURS  = 48    # a view is "recent" for this long
     BIG_AMOUNT         = 2000  # dollars
     BIG_QUIET_DAYS     = 7     # big quote with no contact for this long
@@ -55,10 +56,18 @@ module Followup
     def self.skip_reason(state, now, customer_last_contact, customer_last_reply)
       return "closed" unless state.open?
       return "too_old" if now - state.quote.created_at > MAX_AGE_DAYS * DAY
-      return "max follow-ups reached" if state.followups >= MAX_FOLLOWUPS_PER_QUOTE
+      return "max follow-ups reached" if state.followups >= MAX_FOLLOWUPS_PER_QUOTE && !reply_waiting?(state)
       return "cooldown" if cooling_down?(now, customer_last_contact, customer_last_reply)
 
       nil
+    end
+
+    # The customer replied after our most recent contact on this quote. Answering
+    # them is never capped: the cap limits chasing, not conversations.
+    def self.reply_waiting?(state)
+      replied = state.last_replied_at
+      outbound = state.last_outbound_at
+      !replied.nil? && (outbound.nil? || outbound < replied)
     end
 
     # A reply from the customer after our last contact lifts the cooldown: they
@@ -79,7 +88,7 @@ module Followup
       quiet_since = outbound || quote.created_at
       quiet_days = (now - quiet_since) / DAY
 
-      if replied && (outbound.nil? || outbound < replied)
+      if reply_waiting?(state)
         ["replied_unanswered", "Customer replied #{ago(now, replied)} ago and nobody has answered"]
       elsif viewed && now - viewed <= VIEW_WINDOW_HOURS * HOUR &&
             (replied.nil? || replied < viewed) && (outbound.nil? || outbound < viewed)

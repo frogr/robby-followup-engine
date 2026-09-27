@@ -1,0 +1,2 @@
+$ sqlite3 followup.sqlite3 "UPDATE outbox SET status = 'pending' WHERE id = 1"
+Error: stepping, illegal outbox transition (19)

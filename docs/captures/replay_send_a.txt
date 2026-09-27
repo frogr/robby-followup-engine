@@ -1,0 +1,4 @@
+$ FOLLOWUP_DB=replay.sqlite3 bin/followup send --now 2026-08-13T09:00:00Z
+send at 2026-08-13T09:00:00Z: 19 processed, 17 sent, 0 failed, 2 blocked, 0 skipped
+  #3 blocked: cooldown: customer last contacted at 2026-08-14T14:00:00Z, within 3 days of 2026-08-13T09:00:00Z
+  #19 blocked: cooldown: customer last contacted at 2026-08-13T09:00:00Z, within 3 days of 2026-08-13T09:00:00Z

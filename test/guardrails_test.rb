@@ -133,6 +133,21 @@ class GuardrailsTest < FollowupTest
     assert_equal({ "max follow-ups reached" => 2 }, later.skipped)
   end
 
+  def test_a_reply_after_the_third_follow_up_is_still_answered
+    texts = [20, 15, 10].map { |days| raw("message_sent", "Q1", NOW - days * DAY) }
+    db = memory_db(quotes: [quote("Q1", created_at: NOW - 30 * DAY)], events: texts)
+    assert_equal({ "max follow-ups reached" => 1 }, Policy.run(DB.quotes(db), DB.events(db), NOW).skipped)
+
+    store(db, events: [raw("customer_replied", "Q1", NOW - DAY)])
+
+    assert_equal [%w[Q1 replied_unanswered]], candidates(db).map { |c| [c.quote_id, c.reason] }
+
+    # Once we answer, the cap applies again.
+    draft_and_approve(db)
+    Outbox.send_approved(db, NOW)
+    assert_equal({ "max follow-ups reached" => 1 }, Policy.run(DB.quotes(db), DB.events(db), NOW + 10 * DAY, sent: DB.sent_contacts(db)).skipped)
+  end
+
   # ---- never draft the same follow-up twice ------------------------------------
 
   def test_drafting_again_in_the_same_week_creates_nothing

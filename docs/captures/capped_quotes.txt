@@ -1,0 +1,6 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT q.id, (SELECT COUNT(*) FROM events e WHERE e.quote_id = q.id AND e.type = 'message_sent') AS message_sent_events, (SELECT COUNT(*) FROM outbox o WHERE o.quote_id = q.id AND o.status = 'sent') AS sent_by_engine FROM quotes q WHERE message_sent_events + sent_by_engine >= 3 ORDER BY q.id"
+id      message_sent_events  sent_by_engine
+------  -------------------  --------------
+Q-1005  1                    2             
+Q-1012  1                    2             
+Q-1027  1                    2

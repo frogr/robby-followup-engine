@@ -131,7 +131,7 @@ module Followup
 
       last = db.get_first_value("SELECT MAX(at) FROM customer_contacts WHERE customer_phone = ?",
                                 [row["customer_phone"]])
-      "cooldown: customer last contacted at #{last}, under #{Policy::COOLDOWN_DAYS} days before #{now.iso8601}"
+      "cooldown: customer last contacted at #{last}, within #{Policy::COOLDOWN_DAYS} days of #{now.iso8601}"
     end
 
     def self.rows(db)

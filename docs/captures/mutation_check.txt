@@ -1,0 +1,25 @@
+$ ruby test/mutation_check.rb
+no_cooldown: the cooldown condition is removed from the send statement
+  37 runs, 91 assertions, 3 failures, 0 errors, 0 skips
+  caught by GuardrailsTest#test_a_message_sent_event_that_lands_after_approval_blocks_the_send
+  caught by GuardrailsTest#test_cooldown_ends_exactly_three_days_after_the_last_contact
+  caught by GuardrailsTest#test_two_quotes_for_one_customer_send_one_and_block_the_other
+
+no_closed: the closed-quote conditions are removed from the send statement
+  37 runs, 90 assertions, 3 failures, 0 errors, 0 skips
+  caught by GuardrailsTest#test_a_quote_accepted_after_approval_is_blocked
+  caught by GuardrailsTest#test_a_quote_dismissed_in_a_newer_snapshot_is_blocked
+  caught by SendIdempotencyTest#test_retry_runs_the_same_guardrails_as_send
+
+no_status: the row status condition is removed from the send statement
+  37 runs, 94 assertions, 0 failures, 1 errors, 0 skips
+  caught by SendIdempotencyTest#test_a_stale_worker_cannot_resend_a_sent_row
+
+file_order: events are kept in file order with no dedup and no sort
+  37 runs, 95 assertions, 4 failures, 0 errors, 0 skips
+  caught by EventsStateTest#test_a_repeated_event_id_is_stored_once
+  caught by EventsStateTest#test_events_are_ordered_by_event_time_not_file_order
+  caught by EventsStateTest#test_events_without_an_id_dedup_on_type_quote_and_timestamp
+  caught by EventsStateTest#test_seed_file_has_88_lines_and_82_distinct_events_in_time_order
+
+all 4 mutations caught

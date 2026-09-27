@@ -1,0 +1,2 @@
+$ sqlite3 followup.sqlite3 "SELECT ROUND(julianday('2026-08-31T09:00:00Z') - julianday(MIN(created_at)), 1) || ' days' FROM quotes"
+29.8 days

@@ -1,0 +1,10 @@
+$ bin/followup outbox | head -9
+outbox: 51 rows  blocked=2 sent=49
+#1   sent     112.5  Q-1016  Ray Klein        replied_unanswered  tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1016:replied_unanswered:2026-W34
+       msg: Hi Ray, Jaden here. Sorry for the slow reply on your $12,500 quote. I have your message and I'm around today. What's the best time to talk it through?
+#2   sent     105.2  Q-1007  Emily Patel      replied_unanswered  tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1007:replied_unanswered:2026-W34
+       msg: Hi Emily, Brad here. Sorry for the slow reply on your $5,200 quote. I have your message and I'm around today. What's the best time to talk it through?
+#3   sent     103.8  Q-1015  Angela Ortiz     replied_unanswered  tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1015:replied_unanswered:2026-W34

@@ -1,0 +1,3 @@
+$ sqlite3 followup.sqlite3 "SELECT id || ' ' || status FROM quotes q WHERE status <> 'open' AND NOT EXISTS (SELECT 1 FROM events e WHERE e.quote_id = q.id AND e.type = 'quote_accepted')"
+Q-1009 dismissed
+Q-1017 accepted

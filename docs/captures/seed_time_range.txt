@@ -1,0 +1,4 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT MIN(ts) AS first_event, MAX(ts) AS last_event FROM events"
+first_event           last_event          
+--------------------  --------------------
+2026-08-01T15:00:00Z  2026-08-16T16:00:00Z

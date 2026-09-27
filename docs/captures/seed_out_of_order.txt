@@ -1,0 +1,2 @@
+$ ruby -rjson -e 't = File.readlines("data/events.jsonl").map { |l| JSON.parse(l)["timestamp"] }; puts "#{t.size} lines, #{t.each_cons(2).count { |a, b| b < a }} adjacent pairs out of order"'
+88 lines, 41 adjacent pairs out of order

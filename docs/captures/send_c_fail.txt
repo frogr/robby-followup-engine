@@ -1,0 +1,5 @@
+$ bin/followup send --now 2026-08-24T09:00:00Z --fail | head -4
+send at 2026-08-24T09:00:00Z: 27 processed, 0 sent, 27 failed, 0 blocked, 0 skipped
+  #25 failed: delivery failed (forced by --fail)
+  #26 failed: delivery failed (forced by --fail)
+  #27 failed: delivery failed (forced by --fail)

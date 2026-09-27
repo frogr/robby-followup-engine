@@ -1,0 +1,4 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT COUNT(*) AS quotes, SUM(customer_phone GLOB '+1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]') AS plus_one_then_ten_digits FROM quotes"
+quotes  plus_one_then_ten_digits
+------  ------------------------
+30      30

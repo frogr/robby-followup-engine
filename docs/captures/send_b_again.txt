@@ -1,0 +1,2 @@
+$ bin/followup send --now 2026-08-17T09:00:00Z
+send at 2026-08-17T09:00:00Z: 0 processed, 0 sent, 0 failed, 0 blocked, 0 skipped

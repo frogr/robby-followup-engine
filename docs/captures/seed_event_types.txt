@@ -1,0 +1,8 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT type, COUNT(*) AS events FROM events GROUP BY type ORDER BY type"
+type              events
+----------------  ------
+customer_replied  9     
+message_sent      6     
+quote_accepted    1     
+quote_sent        30    
+quote_viewed      36

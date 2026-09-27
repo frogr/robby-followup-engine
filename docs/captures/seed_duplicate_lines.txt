@@ -1,0 +1,2 @@
+$ sort data/events.jsonl | uniq -d | wc -l
+       6

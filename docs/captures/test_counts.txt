@@ -1,0 +1,4 @@
+$ grep -c 'def test_' test/*_test.rb
+test/events_state_test.rb:12
+test/guardrails_test.rb:14
+test/send_idempotency_test.rb:11

@@ -1,0 +1,8 @@
+$ git log --reverse --format='%h  %ad  %s' --date=format:'%Y-%m-%d %H:%M'
+e634531  2026-09-27 10:56  Step 1: seed data, assignment PDF, data findings
+7a00b8c  2026-09-27 11:24  Step 2: ingest and state derivation
+3c6d7ed  2026-09-27 11:26  Step 3: follow-up policy and candidates command
+e002ce5  2026-09-27 11:30  Step 4: outbox with draft, approve, send, retry and guarded send boundary
+d850427  2026-09-27 11:33  Step 5: tests for dedup and ordering, the three guardrails, and idempotent send
+da30f64  2026-09-27 11:34  Step 6: README skeleton with demo sequence, policy and where I stopped
+2ce1698  2026-09-27 11:53  Step 7: per-quote follow-up cap, README sections for 50 shops and what is next

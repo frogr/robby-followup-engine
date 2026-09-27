@@ -1,0 +1,5 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT id, customer_name, customer_phone, status, amount FROM quotes WHERE customer_phone = '+19175552003'"
+id      customer_name  customer_phone  status  amount
+------  -------------  --------------  ------  ------
+Q-1003  Karen Nguyen   +19175552003    open    850   
+Q-1025  Karen Nguyen   +19175552003    open    850

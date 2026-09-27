@@ -1,0 +1,2 @@
+$ sqlite3 followup.sqlite3 "INSERT INTO outbox (quote_id, customer_phone, reason, score, body, idempotency_key, created_at) SELECT quote_id, customer_phone, reason, score, body, idempotency_key, created_at FROM outbox WHERE id = 1"
+Error: stepping, UNIQUE constraint failed: outbox.idempotency_key (19)

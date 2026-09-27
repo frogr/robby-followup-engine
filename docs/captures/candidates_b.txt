@@ -1,0 +1,28 @@
+$ bin/followup candidates --now 2026-08-17T09:00:00Z
+candidates at 2026-08-17T09:00:00Z: 24
+#   score  quote   customer           amount   reason              why
+1   112.5  Q-1016  Ray Klein          $12,500  replied_unanswered  Customer replied 11.5 days ago and nobody has answered
+2   105.2  Q-1007  Emily Patel        $5,200   replied_unanswered  Customer replied 6.9 days ago and nobody has answered
+3   103.8  Q-1015  Angela Ortiz       $3,800   replied_unanswered  Customer replied 5.6 days ago and nobody has answered
+4   85.0   Q-1026  Hank Crane         $22,000  viewed_no_reply     Viewed the quote 17h ago, no reply and no follow-up since
+5   70.9   Q-1000  Mike Reilly        $850     viewed_no_reply     Viewed the quote 36h ago, no reply and no follow-up since
+6   65.0   Q-1012  Carl Dawson        $18,000  big_quote_cold      $18,000 quote with no contact in 10.3 days
+7   65.0   Q-1021  Judy Faulk         $22,000  big_quote_cold      $22,000 quote with no contact in 11.1 days
+8   65.0   Q-1027  Beth Vega          $18,000  big_quote_cold      $18,000 quote with no contact in 7.2 days
+9   62.5   Q-1010  Bill Boone         $12,500  big_quote_cold      $12,500 quote with no contact in 15.2 days
+10  62.5   Q-1022  Ned Diaz           $12,500  big_quote_cold      $12,500 quote with no contact in 11.1 days
+11  59.8   Q-1024  Gus Lam            $9,800   big_quote_cold      $9,800 quote with no contact in 10.6 days
+12  57.5   Q-1006  Jose Thompson      $7,500   big_quote_cold      $7,500 quote with no contact in 13.2 days
+13  55.2   Q-1008  Frank Marino       $5,200   big_quote_cold      $5,200 quote with no contact in 12.0 days
+14  55.2   Q-1011  Rachel Ferreira    $5,200   big_quote_cold      $5,200 quote with no contact in 9.1 days
+15  55.2   Q-1014  Pete Whitman       $5,200   big_quote_cold      $5,200 quote with no contact in 8.2 days
+16  53.8   Q-1005  Linda Rivera       $3,800   big_quote_cold      $3,800 quote with no contact in 9.0 days
+17  53.8   Q-1029  Wanda Quinn        $3,800   big_quote_cold      $3,800 quote with no contact in 8.0 days
+18  52.4   Q-1001  Susan Chen         $2,400   big_quote_cold      $2,400 quote with no contact in 13.5 days
+19  52.4   Q-1013  Diane Lugo         $2,400   big_quote_cold      $2,400 quote with no contact in 12.8 days
+20  31.2   Q-1023  Tina Grady         $18,000  generic_checkin     No contact in 5.8 days, quote is 6.5 days old
+21  18.5   Q-1025  Karen Nguyen       $850     generic_checkin     No contact in 6.9 days, quote is 6.9 days old
+22  18.1   Q-1028  Sal Moss           $420     generic_checkin     No contact in 6.9 days, quote is 6.9 days old
+23  18.0   Q-1018  Stan Pruitt        $420     generic_checkin     No contact in 7.1 days, quote is 7.1 days old
+24  15.4   Q-1003  Karen Nguyen       $850     generic_checkin     No contact in 15.6 days, quote is 15.8 days old
+skipped: closed=3, cooldown=1, no_signal=2

@@ -1,0 +1,157 @@
+$ bin/followup outbox
+outbox: 51 rows  blocked=2 sent=49
+#1   sent     112.5  Q-1016  Ray Klein        replied_unanswered  tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1016:replied_unanswered:2026-W34
+       msg: Hi Ray, Jaden here. Sorry for the slow reply on your $12,500 quote. I have your message and I'm around today. What's the best time to talk it through?
+#2   sent     105.2  Q-1007  Emily Patel      replied_unanswered  tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1007:replied_unanswered:2026-W34
+       msg: Hi Emily, Brad here. Sorry for the slow reply on your $5,200 quote. I have your message and I'm around today. What's the best time to talk it through?
+#3   sent     103.8  Q-1015  Angela Ortiz     replied_unanswered  tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1015:replied_unanswered:2026-W34
+       msg: Hi Angela, Brad here. Sorry for the slow reply on your $3,800 quote. I have your message and I'm around today. What's the best time to talk it through?
+#4   sent     85.0   Q-1026  Hank Crane       viewed_no_reply     tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1026:viewed_no_reply:2026-W34
+       msg: Hi Hank, Ridge here. I saw you had a chance to look over the $22,000 quote. Any questions I can answer, or anything you'd like me to adjust?
+#5   sent     70.9   Q-1000  Mike Reilly      viewed_no_reply     tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1000:viewed_no_reply:2026-W34
+       msg: Hi Mike, Brad here. I saw you had a chance to look over the $850 quote. Any questions I can answer, or anything you'd like me to adjust?
+#6   sent     65.0   Q-1012  Carl Dawson      big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1012:big_quote_cold:2026-W34
+       msg: Hi Carl, Jaden here. I know $18,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#7   sent     65.0   Q-1021  Judy Faulk       big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1021:big_quote_cold:2026-W34
+       msg: Hi Judy, Ridge here. I know $22,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#8   sent     65.0   Q-1027  Beth Vega        big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1027:big_quote_cold:2026-W34
+       msg: Hi Beth, Ridge here. I know $18,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#9   sent     62.5   Q-1010  Bill Boone       big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1010:big_quote_cold:2026-W34
+       msg: Hi Bill, Zach here. I know $12,500 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#10  sent     62.5   Q-1022  Ned Diaz         big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1022:big_quote_cold:2026-W34
+       msg: Hi Ned, Jose M. here. I know $12,500 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#11  sent     59.8   Q-1024  Gus Lam          big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1024:big_quote_cold:2026-W34
+       msg: Hi Gus, Brad here. I know $9,800 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#12  sent     57.5   Q-1006  Jose Thompson    big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1006:big_quote_cold:2026-W34
+       msg: Hi Jose, Zach here. I know $7,500 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#13  sent     55.2   Q-1008  Frank Marino     big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1008:big_quote_cold:2026-W34
+       msg: Hi Frank, Jose M. here. I know $5,200 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#14  sent     55.2   Q-1011  Rachel Ferreira  big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1011:big_quote_cold:2026-W34
+       msg: Hi Rachel, Jose M. here. I know $5,200 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#15  sent     55.2   Q-1014  Pete Whitman     big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1014:big_quote_cold:2026-W34
+       msg: Hi Pete, Jaden here. I know $5,200 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#16  sent     53.8   Q-1005  Linda Rivera     big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1005:big_quote_cold:2026-W34
+       msg: Hi Linda, Brad here. I know $3,800 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#17  sent     53.8   Q-1029  Wanda Quinn      big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1029:big_quote_cold:2026-W34
+       msg: Hi Wanda, Zach here. I know $3,800 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#18  sent     52.4   Q-1001  Susan Chen       big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1001:big_quote_cold:2026-W34
+       msg: Hi Susan, Jaden here. I know $2,400 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#19  sent     52.4   Q-1013  Diane Lugo       big_quote_cold      tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1013:big_quote_cold:2026-W34
+       msg: Hi Diane, Brad here. I know $2,400 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#20  sent     31.2   Q-1023  Tina Grady       generic_checkin     tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1023:generic_checkin:2026-W34
+       msg: Hi Tina, Ridge here, checking in on your $18,000 quote. Still interested? I can get you on the schedule whenever you're ready.
+#21  sent     18.5   Q-1025  Karen Nguyen     generic_checkin     tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1025:generic_checkin:2026-W34
+       msg: Hi Karen, Jaden here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+#22  sent     18.1   Q-1028  Sal Moss         generic_checkin     tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1028:generic_checkin:2026-W34
+       msg: Hi Sal, Brad here, checking in on your $420 quote. Still interested? I can get you on the schedule whenever you're ready.
+#23  sent     18.0   Q-1018  Stan Pruitt      generic_checkin     tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1018:generic_checkin:2026-W34
+       msg: Hi Stan, Jaden here, checking in on your $420 quote. Still interested? I can get you on the schedule whenever you're ready.
+#24  blocked  15.4   Q-1003  Karen Nguyen     generic_checkin     tries=0 sent_at=-
+       key: Q-1003:generic_checkin:2026-W34
+       msg: Hi Karen, Jaden here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+       err: cooldown: customer last contacted at 2026-08-17T09:00:00Z, within 3 days of 2026-08-17T09:00:00Z
+#25  sent     65.0   Q-1012  Carl Dawson      big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1012:big_quote_cold:2026-W35
+       msg: Hi Carl, Jaden here. I know $18,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#26  sent     65.0   Q-1020  Walt Herrera     big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1020:big_quote_cold:2026-W35
+       msg: Hi Walt, Zach here. I know $18,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#27  sent     65.0   Q-1021  Judy Faulk       big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1021:big_quote_cold:2026-W35
+       msg: Hi Judy, Ridge here. I know $22,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#28  sent     65.0   Q-1023  Tina Grady       big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1023:big_quote_cold:2026-W35
+       msg: Hi Tina, Ridge here. I know $18,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#29  sent     65.0   Q-1026  Hank Crane       big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1026:big_quote_cold:2026-W35
+       msg: Hi Hank, Ridge here. I know $22,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#30  sent     65.0   Q-1027  Beth Vega        big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1027:big_quote_cold:2026-W35
+       msg: Hi Beth, Ridge here. I know $18,000 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#31  sent     62.5   Q-1002  Dave Okafor      big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1002:big_quote_cold:2026-W35
+       msg: Hi Dave, Brad here. I know $12,500 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#32  sent     62.5   Q-1010  Bill Boone       big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1010:big_quote_cold:2026-W35
+       msg: Hi Bill, Zach here. I know $12,500 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#33  sent     62.5   Q-1016  Ray Klein        big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1016:big_quote_cold:2026-W35
+       msg: Hi Ray, Jaden here. I know $12,500 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#34  sent     62.5   Q-1022  Ned Diaz         big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1022:big_quote_cold:2026-W35
+       msg: Hi Ned, Jose M. here. I know $12,500 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#35  sent     59.8   Q-1024  Gus Lam          big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1024:big_quote_cold:2026-W35
+       msg: Hi Gus, Brad here. I know $9,800 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#36  sent     57.5   Q-1006  Jose Thompson    big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1006:big_quote_cold:2026-W35
+       msg: Hi Jose, Zach here. I know $7,500 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#37  sent     55.2   Q-1007  Emily Patel      big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1007:big_quote_cold:2026-W35
+       msg: Hi Emily, Brad here. I know $5,200 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#38  sent     55.2   Q-1008  Frank Marino     big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1008:big_quote_cold:2026-W35
+       msg: Hi Frank, Jose M. here. I know $5,200 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#39  sent     55.2   Q-1011  Rachel Ferreira  big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1011:big_quote_cold:2026-W35
+       msg: Hi Rachel, Jose M. here. I know $5,200 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#40  sent     55.2   Q-1014  Pete Whitman     big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1014:big_quote_cold:2026-W35
+       msg: Hi Pete, Jaden here. I know $5,200 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#41  sent     55.2   Q-1019  Gloria Sano      big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1019:big_quote_cold:2026-W35
+       msg: Hi Gloria, Ridge here. I know $5,200 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#42  sent     53.8   Q-1005  Linda Rivera     big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1005:big_quote_cold:2026-W35
+       msg: Hi Linda, Brad here. I know $3,800 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#43  sent     53.8   Q-1015  Angela Ortiz     big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1015:big_quote_cold:2026-W35
+       msg: Hi Angela, Brad here. I know $3,800 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#44  sent     53.8   Q-1029  Wanda Quinn      big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1029:big_quote_cold:2026-W35
+       msg: Hi Wanda, Zach here. I know $3,800 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#45  sent     52.4   Q-1001  Susan Chen       big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1001:big_quote_cold:2026-W35
+       msg: Hi Susan, Jaden here. I know $2,400 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#46  sent     52.4   Q-1013  Diane Lugo       big_quote_cold      tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1013:big_quote_cold:2026-W35
+       msg: Hi Diane, Brad here. I know $2,400 is a real decision, so no rush. Happy to walk through the scope or talk options whenever suits you.
+#47  sent     16.0   Q-1025  Karen Nguyen     generic_checkin     tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1025:generic_checkin:2026-W35
+       msg: Hi Karen, Jaden here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+#48  sent     15.7   Q-1028  Sal Moss         generic_checkin     tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1028:generic_checkin:2026-W35
+       msg: Hi Sal, Brad here, checking in on your $420 quote. Still interested? I can get you on the schedule whenever you're ready.
+#49  sent     15.6   Q-1018  Stan Pruitt      generic_checkin     tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1018:generic_checkin:2026-W35
+       msg: Hi Stan, Jaden here, checking in on your $420 quote. Still interested? I can get you on the schedule whenever you're ready.
+#50  sent     15.2   Q-1000  Mike Reilly      generic_checkin     tries=2 sent_at=2026-08-24T09:00:00Z
+       key: Q-1000:generic_checkin:2026-W35
+       msg: Hi Mike, Brad here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+#51  blocked  12.9   Q-1003  Karen Nguyen     generic_checkin     tries=1 sent_at=-
+       key: Q-1003:generic_checkin:2026-W35
+       msg: Hi Karen, Jaden here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+       err: cooldown: customer last contacted at 2026-08-24T09:00:00Z, within 3 days of 2026-08-24T09:00:00Z

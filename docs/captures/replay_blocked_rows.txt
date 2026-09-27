@@ -1,0 +1,5 @@
+$ sqlite3 -header -column replay.sqlite3 "SELECT id, quote_id, status FROM outbox WHERE status = 'blocked'"
+id  quote_id  status 
+--  --------  -------
+3   Q-1019    blocked
+19  Q-1003    blocked

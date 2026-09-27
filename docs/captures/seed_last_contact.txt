@@ -1,0 +1,4 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT COUNT(*) AS quotes, SUM(last_contact_at IS NOT latest) AS disagree, SUM(last_contact_at IS NOT NULL AND latest IS NULL) AS contact_but_no_event, SUM(last_contact_at IS NULL AND latest IS NOT NULL) AS event_but_no_contact, SUM(last_contact_at < latest) AS event_is_later, SUM(last_contact_at > latest) AS snapshot_is_later FROM (SELECT q.last_contact_at, (SELECT MAX(ts) FROM events e WHERE e.quote_id = q.id AND e.type = 'message_sent') AS latest FROM quotes q)"
+quotes  disagree  contact_but_no_event  event_but_no_contact  event_is_later  snapshot_is_later
+------  --------  --------------------  --------------------  --------------  -----------------
+30      22        16                    2                     3               1

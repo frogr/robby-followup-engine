@@ -1,0 +1,8 @@
+$ bin/followup outbox | awk '/^#/{show = /Karen Nguyen/} show'
+#21  sent     18.5   Q-1025  Karen Nguyen     generic_checkin     tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1025:generic_checkin:2026-W34
+       msg: Hi Karen, Jaden here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+#24  blocked  15.4   Q-1003  Karen Nguyen     generic_checkin     tries=0 sent_at=-
+       key: Q-1003:generic_checkin:2026-W34
+       msg: Hi Karen, Jaden here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+       err: cooldown: customer last contacted at 2026-08-17T09:00:00Z, within 3 days of 2026-08-17T09:00:00Z

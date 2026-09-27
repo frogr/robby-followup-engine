@@ -1,0 +1,8 @@
+$ bin/followup candidates --now 2026-08-13T09:00:00Z | sed -n '1,6p;$p'
+candidates at 2026-08-13T09:00:00Z: 19
+#   score  quote   customer           amount   reason              why
+1   112.5  Q-1016  Ray Klein          $12,500  replied_unanswered  Customer replied 7.5 days ago and nobody has answered
+2   105.2  Q-1007  Emily Patel        $5,200   replied_unanswered  Customer replied 2.9 days ago and nobody has answered
+3   105.2  Q-1019  Gloria Sano        $5,200   replied_unanswered  Customer replied 12h ago and nobody has answered
+4   103.8  Q-1015  Angela Ortiz       $3,800   replied_unanswered  Customer replied 38h ago and nobody has answered
+skipped: closed=3, cooldown=3, no_signal=5

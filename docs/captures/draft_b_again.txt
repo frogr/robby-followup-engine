@@ -1,0 +1,2 @@
+$ bin/followup draft --now 2026-08-17T09:00:00Z
+draft at 2026-08-17T09:00:00Z (2026-W34): 0 created, 24 already drafted

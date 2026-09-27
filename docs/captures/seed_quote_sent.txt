@@ -1,0 +1,4 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT COUNT(*) AS quote_sent_events, COUNT(DISTINCT e.quote_id) AS quotes_covered, SUM(e.ts = q.created_at) AS stamped_at_created_at FROM events e JOIN quotes q ON q.id = e.quote_id WHERE e.type = 'quote_sent'"
+quote_sent_events  quotes_covered  stamped_at_created_at
+-----------------  --------------  ---------------------
+30                 30              30

@@ -1,0 +1,2 @@
+$ sqlite3 followup.sqlite3 "SELECT COUNT(*) FROM quotes q WHERE status = 'open' AND EXISTS (SELECT 1 FROM events e WHERE e.quote_id = q.id AND e.type = 'quote_accepted')"
+0

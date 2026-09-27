@@ -1,0 +1,24 @@
+    # ---- Every threshold and weight lives here -------------------------------
+    DAY = 86_400
+    HOUR = 3_600
+
+    COOLDOWN_DAYS      = 3     # per customer, across all of their quotes
+    MAX_AGE_DAYS       = 60    # older quotes are never candidates
+    MAX_FOLLOWUPS_PER_QUOTE = 3 # message_sent events plus our own sent messages;
+                                # does not apply while a customer reply is unanswered
+    VIEW_WINDOW_HOURS  = 48    # a view is "recent" for this long
+    BIG_AMOUNT         = 2000  # dollars
+    BIG_QUIET_DAYS     = 7     # big quote with no contact for this long
+    GENERIC_QUIET_DAYS = 5     # any quote with no contact for this long
+
+    # Tiers are spaced wider than the amount bonus, so a reason always outranks
+    # the one below it and amount only orders quotes within a reason.
+    BASE_SCORE = {
+      "replied_unanswered" => 100,
+      "viewed_no_reply"    => 70,
+      "big_quote_cold"     => 50,
+      "generic_checkin"    => 20
+    }.freeze
+    AMOUNT_POINTS_PER_1000 = 1
+    AMOUNT_POINTS_CAP      = 15
+    # ---------------------------------------------------------------------------

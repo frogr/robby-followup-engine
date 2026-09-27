@@ -1,0 +1,8 @@
+$ bin/followup ingest
+quotes                         30
+event lines                    88
+malformed                      0
+invalid or duplicate in file   6
+unique events                  82
+inserted                       0
+already stored                 82

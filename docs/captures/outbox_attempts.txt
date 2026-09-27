@@ -1,0 +1,7 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT status, attempts, sent_at, COUNT(*) AS n FROM outbox GROUP BY 1, 2, 3 ORDER BY 3, 1, 2"
+status   attempts  sent_at               n 
+-------  --------  --------------------  --
+blocked  0                               1 
+blocked  1                               1 
+sent     1         2026-08-17T09:00:00Z  23
+sent     2         2026-08-24T09:00:00Z  26

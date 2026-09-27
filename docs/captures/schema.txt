@@ -1,0 +1,66 @@
+$ sqlite3 followup.sqlite3 .schema
+CREATE TABLE quotes (
+  id              TEXT PRIMARY KEY,
+  customer_name   TEXT NOT NULL,
+  customer_phone  TEXT NOT NULL,
+  tech_name       TEXT,
+  amount          INTEGER NOT NULL,
+  status          TEXT NOT NULL CHECK (status IN ('open','accepted','dismissed')),
+  created_at      TEXT NOT NULL,
+  last_contact_at TEXT
+);
+CREATE INDEX quotes_phone ON quotes (customer_phone);
+CREATE TABLE events (
+  event_id  TEXT PRIMARY KEY,
+  type      TEXT NOT NULL,
+  quote_id  TEXT NOT NULL,
+  ts        TEXT NOT NULL,
+  channel   TEXT,
+  direction TEXT
+);
+CREATE INDEX events_quote_ts ON events (quote_id, ts);
+CREATE TABLE outbox (
+  id              INTEGER PRIMARY KEY,
+  quote_id        TEXT NOT NULL REFERENCES quotes (id),
+  customer_phone  TEXT NOT NULL,
+  reason          TEXT NOT NULL,
+  score           REAL NOT NULL,
+  body            TEXT NOT NULL,
+  status          TEXT NOT NULL DEFAULT 'pending'
+                  CHECK (status IN ('pending','approved','sent','failed','blocked')),
+  idempotency_key TEXT NOT NULL UNIQUE,
+  created_at      TEXT NOT NULL,
+  sent_at         TEXT,
+  attempts        INTEGER NOT NULL DEFAULT 0,
+  last_error      TEXT
+);
+CREATE INDEX outbox_phone_sent ON outbox (customer_phone, sent_at);
+CREATE TRIGGER outbox_transitions
+BEFORE UPDATE OF status ON outbox
+WHEN NOT (
+  (OLD.status = 'pending'  AND NEW.status = 'approved') OR
+  (OLD.status = 'approved' AND NEW.status IN ('sent','failed','blocked')) OR
+  (OLD.status = 'failed'   AND NEW.status IN ('sent','blocked'))
+)
+BEGIN
+  SELECT RAISE(ABORT, 'illegal outbox transition');
+END;
+CREATE VIEW customer_contacts AS
+  SELECT q.customer_phone AS customer_phone, e.ts AS at
+    FROM events e JOIN quotes q ON q.id = e.quote_id
+   WHERE e.type = 'message_sent' AND COALESCE(e.direction, 'outbound') <> 'inbound'
+  UNION ALL
+  SELECT customer_phone, last_contact_at FROM quotes WHERE last_contact_at IS NOT NULL
+  UNION ALL
+  SELECT customer_phone, sent_at FROM outbox WHERE status = 'sent'
+/* customer_contacts(customer_phone,at) */;
+CREATE VIEW customer_replies AS
+  SELECT q.customer_phone AS customer_phone, e.ts AS at
+    FROM events e JOIN quotes q ON q.id = e.quote_id
+   WHERE e.type = 'customer_replied'
+/* customer_replies(customer_phone,at) */;
+CREATE TRIGGER outbox_no_delete
+BEFORE DELETE ON outbox
+BEGIN
+  SELECT RAISE(ABORT, 'outbox rows are never deleted');
+END;

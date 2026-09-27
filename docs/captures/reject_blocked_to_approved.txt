@@ -1,0 +1,2 @@
+$ sqlite3 followup.sqlite3 "UPDATE outbox SET status = 'approved' WHERE status = 'blocked'"
+Error: stepping, illegal outbox transition (19)

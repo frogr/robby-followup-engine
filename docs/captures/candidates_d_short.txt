@@ -1,0 +1,8 @@
+$ bin/followup candidates --now 2026-08-31T09:00:00Z | sed -n '1,6p;$p'
+candidates at 2026-08-31T09:00:00Z: 24
+#   score  quote   customer           amount   reason              why
+1   65.0   Q-1020  Walt Herrera       $18,000  big_quote_cold      $18,000 quote with no contact in 7.0 days
+2   65.0   Q-1021  Judy Faulk         $22,000  big_quote_cold      $22,000 quote with no contact in 7.0 days
+3   65.0   Q-1023  Tina Grady         $18,000  big_quote_cold      $18,000 quote with no contact in 7.0 days
+4   65.0   Q-1026  Hank Crane         $22,000  big_quote_cold      $22,000 quote with no contact in 7.0 days
+skipped: closed=3, max follow-ups reached=3

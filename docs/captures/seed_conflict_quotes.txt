@@ -1,0 +1,6 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT id, status, created_at, last_contact_at FROM quotes WHERE id IN ('Q-1004','Q-1009','Q-1017') ORDER BY id"
+id      status     created_at            last_contact_at     
+------  ---------  --------------------  --------------------
+Q-1004  accepted   2026-08-07T07:00:00Z  2026-08-09T17:00:00Z
+Q-1009  dismissed  2026-08-09T02:00:00Z  2026-08-11T03:00:00Z
+Q-1017  accepted   2026-08-04T05:00:00Z  2026-08-05T23:00:00Z

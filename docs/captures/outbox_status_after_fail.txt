@@ -1,0 +1,2 @@
+$ bin/followup outbox | head -1
+outbox: 51 rows  blocked=1 failed=27 sent=23

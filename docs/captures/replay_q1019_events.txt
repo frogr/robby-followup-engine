@@ -1,0 +1,7 @@
+$ sqlite3 -header -column replay.sqlite3 "SELECT quote_id, ts, type FROM events WHERE quote_id = 'Q-1019' ORDER BY ts"
+quote_id  ts                    type            
+--------  --------------------  ----------------
+Q-1019    2026-08-09T22:00:00Z  quote_sent      
+Q-1019    2026-08-12T16:00:00Z  quote_viewed    
+Q-1019    2026-08-12T21:00:00Z  customer_replied
+Q-1019    2026-08-14T14:00:00Z  message_sent

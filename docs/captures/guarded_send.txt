@@ -1,0 +1,14 @@
+UPDATE outbox
+   SET status = 'sent', sent_at = :now, attempts = attempts + 1, last_error = NULL
+ WHERE id = :id
+   AND status = :from
+   AND EXISTS (SELECT 1 FROM quotes q
+                WHERE q.id = outbox.quote_id AND q.status = 'open')
+   AND NOT EXISTS (SELECT 1 FROM events e
+                    WHERE e.quote_id = outbox.quote_id AND e.type = 'quote_accepted')
+   AND NOT EXISTS (
+         SELECT 1 FROM customer_contacts c
+          WHERE c.customer_phone = outbox.customer_phone
+            AND c.at > :cutoff
+            AND NOT EXISTS (SELECT 1 FROM customer_replies r
+                             WHERE r.customer_phone = c.customer_phone AND r.at > c.at))

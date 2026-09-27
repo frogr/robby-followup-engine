@@ -1,0 +1,6 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT status, attempts, sent_at, last_error, COUNT(*) AS n FROM outbox GROUP BY 1, 2, 3, 4 ORDER BY 1, 2, 3"
+status   attempts  sent_at               last_error                                                                                        n 
+-------  --------  --------------------  ------------------------------------------------------------------------------------------------  --
+blocked  0                               cooldown: customer last contacted at 2026-08-17T09:00:00Z, within 3 days of 2026-08-17T09:00:00Z  1 
+failed   1                               delivery failed (forced by --fail)                                                                27
+sent     1         2026-08-17T09:00:00Z                                                                                                    23

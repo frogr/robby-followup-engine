@@ -1,0 +1,4 @@
+$ sqlite3 -header -column followup.sqlite3 "SELECT type, direction, COUNT(*) AS events FROM events WHERE type = 'message_sent' GROUP BY 1, 2"
+type          direction  events
+------------  ---------  ------
+message_sent  outbound   6

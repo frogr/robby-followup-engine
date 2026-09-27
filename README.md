@@ -1,116 +1,237 @@
 # Robby take-home: follow-up engine
 
-For a given "now", decide which open quotes deserve a follow-up, draft the
-message, and move it through draft, approve and send into an outbox. Nothing is
-delivered. Plain Ruby, SQLite, one CLI.
+For a given "now", this engine decides which open quotes deserve a follow-up,
+drafts a message for each, and moves it through draft, approve and send into an
+outbox. Nothing is delivered: the outbox table stands in for the SMS provider,
+behind the interface a real one would plug into. It is plain Ruby and SQLite
+with one CLI, and "now" is always an argument, so every output below can be
+reproduced.
 
-## How to run
+Depth lives in `docs/`:
 
-Needs Ruby 3.x and the `sqlite3` gem (`gem install sqlite3`). Minitest ships
-with Ruby.
+| Document | What it answers |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | Data flow, schema, the event fold, the outbox state machine, the send statement |
+| [docs/policy.md](docs/policy.md) | Every signal, threshold and weight, with worked scores |
+| [docs/verification.md](docs/verification.md) | Each guardrail, the test that covers it, and a captured run |
+| [docs/decisions.md](docs/decisions.md) | Every judgment call, the alternative, and why |
+
+## Quickstart
+
+Needs Ruby 3.x and the `sqlite3` gem. Minitest ships with Ruby. The `sqlite3`
+command line tool is only needed to re-run the documentation captures.
 
 ```sh
-bin/test                 # 36 tests
-rm -f followup.sqlite3   # start the demo from an empty database
+git clone <repo-url> robby && cd robby
+gem install sqlite3
+bin/test
+rm -f followup.sqlite3   # start from an empty database
 ```
 
-`now` is always an argument. The engine never reads the wall clock, so every
-command below gives the same output on any day.
+Every output block in this README and in `docs/` is a copy of a file in
+`docs/captures/`. Those files are written by `ruby docs/capture.rb`, which
+deletes the database and runs the sequence below from empty.
 
-The demo uses four times. The seed events run from 2026-08-01 to 2026-08-16.
+The demo uses four values of "now". The seed events run from 2026-08-01 to
+2026-08-16.
 
 | Name | Value | Why |
 |---|---|---|
 | A | `2026-08-13T09:00:00Z` | Mid-stream: later events are invisible |
-| B | `2026-08-17T09:00:00Z` | After every event, ISO week 34 |
-| C | `2026-08-24T09:00:00Z` | One week on, ISO week 35 |
+| B | `2026-08-17T09:00:00Z` | After every event |
+| C | `2026-08-24T09:00:00Z` | One week on, a new ISO week |
 | D | `2026-08-31T09:00:00Z` | Two weeks on: the per-quote cap starts to bite |
 
-```sh
-bin/followup ingest
-bin/followup ingest                                  # re-run: inserted 0
+### 1. Ingest
 
-bin/followup candidates --now 2026-08-13T09:00:00Z   # 19 candidates
-bin/followup candidates --now 2026-08-17T09:00:00Z   # 24 candidates
-
-bin/followup draft --now 2026-08-17T09:00:00Z        # 24 created
-bin/followup draft --now 2026-08-17T09:00:00Z        # 0 created, 24 already drafted
-bin/followup approve --all                           # approved 24
-bin/followup send --now 2026-08-17T09:00:00Z         # 23 sent, 1 blocked
-bin/followup send --now 2026-08-17T09:00:00Z         # 0 processed
-
-bin/followup draft --now 2026-08-24T09:00:00Z        # 27 created (new ISO week)
-bin/followup approve --all                           # approved 27
-bin/followup send --now 2026-08-24T09:00:00Z --fail  # 27 failed, 0 sent
-bin/followup retry --now 2026-08-24T09:00:00Z        # 26 sent, 1 blocked
-bin/followup retry --now 2026-08-24T09:00:00Z        # 0 processed
-
-bin/followup candidates --now 2026-08-31T09:00:00Z   # 24 candidates, 3 skipped: max follow-ups reached
-
-bin/followup outbox                                  # 51 rows: sent=49 blocked=2
+```text
+$ bin/followup ingest
+quotes                         30
+event lines                    88
+malformed                      0
+invalid or duplicate in file   6
+unique events                  82
+inserted                       82
+already stored                 0
 ```
 
-What to look for:
+Running it again stores nothing new:
 
-- **The blocked row is Karen Nguyen.** She has two open quotes (Q-1003 and
-  Q-1025). Both are drafted and approved. Q-1025 scores higher and is sent;
-  Q-1003 is then inside her cooldown and is blocked. This happens on the plain
-  send and again on the fail-then-retry path.
-- **`send --fail` needs approved rows**, and after the first send there are
-  none. The second half of the demo drafts again a week later, which also shows
-  the ISO-week rule producing new follow-ups.
-- **The cap first fires at D.** Q-1005, Q-1012 and Q-1027 each have one
-  `message_sent` event plus our sends at B and C, which makes three. It does
-  not fire at A, B or C.
-- `approve <id>` approves a single row.
-
-## How state is modeled
-
-Three tables and two views, all in `lib/followup/db.rb`.
-
-| Table | Holds | Key point |
-|---|---|---|
-| `quotes` | The `quotes.json` snapshot | A closed quote is never reopened by a later snapshot |
-| `events` | The webhook stream | Primary key is the dedup key; ingest is `INSERT OR IGNORE` |
-| `outbox` | Drafted messages and their delivery state | `UNIQUE` idempotency key, status transitions enforced by trigger |
-
-Quote state is not stored. It is derived each run by folding the events with
-timestamp at or before `now`, in event-time order (`lib/followup/state.rb`).
-
-The seed events all carry an `event_id`, so that is the dedup key. Events
-without one fall back to `(type, quote_id, timestamp)`.
-
-Outbox state machine:
-
-```
-pending -> approved -> sent      terminal
-                    -> failed    delivery failed; retry picks these up
-                    -> blocked   a guardrail refused; terminal
-           failed   -> sent | blocked
+```text
+$ bin/followup ingest
+quotes                         30
+event lines                    88
+malformed                      0
+invalid or duplicate in file   6
+unique events                  82
+inserted                       0
+already stored                 82
 ```
 
-### Where each guardrail is enforced
+### 2. Who to follow up with
 
-| Guardrail | Enforced by |
-|---|---|
-| No message without approval | Send only selects `approved`; the trigger rejects `pending -> sent` |
-| Customer cooldown (3 days) | A condition of the send `UPDATE` itself |
-| Never message a closed quote | A condition of the send `UPDATE` itself |
-| Never draft the same follow-up twice | `UNIQUE (idempotency_key)` with `ON CONFLICT DO NOTHING` |
-| Never send a row twice | `status = 'approved'` in the send `UPDATE`; `sent` is terminal by trigger |
-| Outbox history is never lost | A trigger rejects `DELETE` |
+The first four rows and the skip summary at A and at B. The full lists are in
+[docs/verification.md](docs/verification.md#candidates-at-a-b-c-and-d).
 
-The send boundary is one SQL statement, `GUARDED_SEND` in
-`lib/followup/outbox.rb`. Rows are processed one at a time, highest score
-first, each in its own transaction, so a row sent a moment ago counts against
-the next row for the same customer.
+```text
+$ bin/followup candidates --now 2026-08-13T09:00:00Z | sed -n '1,6p;$p'
+candidates at 2026-08-13T09:00:00Z: 19
+#   score  quote   customer           amount   reason              why
+1   112.5  Q-1016  Ray Klein          $12,500  replied_unanswered  Customer replied 7.5 days ago and nobody has answered
+2   105.2  Q-1007  Emily Patel        $5,200   replied_unanswered  Customer replied 2.9 days ago and nobody has answered
+3   105.2  Q-1019  Gloria Sano        $5,200   replied_unanswered  Customer replied 12h ago and nobody has answered
+4   103.8  Q-1015  Angela Ortiz       $3,800   replied_unanswered  Customer replied 38h ago and nobody has answered
+skipped: closed=3, cooldown=3, no_signal=5
+```
 
-The policy also skips closed quotes and customers in cooldown, but that is a
-courtesy to the person approving. The send boundary is what is relied on.
+```text
+$ bin/followup candidates --now 2026-08-17T09:00:00Z | sed -n '1,6p;$p'
+candidates at 2026-08-17T09:00:00Z: 24
+#   score  quote   customer           amount   reason              why
+1   112.5  Q-1016  Ray Klein          $12,500  replied_unanswered  Customer replied 11.5 days ago and nobody has answered
+2   105.2  Q-1007  Emily Patel        $5,200   replied_unanswered  Customer replied 6.9 days ago and nobody has answered
+3   103.8  Q-1015  Angela Ortiz       $3,800   replied_unanswered  Customer replied 5.6 days ago and nobody has answered
+4   85.0   Q-1026  Hank Crane         $22,000  viewed_no_reply     Viewed the quote 17h ago, no reply and no follow-up since
+skipped: closed=3, cooldown=1, no_signal=2
+```
 
-**Idempotency key:** `quote_id:reason:ISO-week`, for example
-`Q-1016:replied_unanswered:2026-W34`. A quote gets at most one follow-up per
-reason per ISO week. The same reason in a later week is a new follow-up.
+Q-1019 is third at A and missing at B: a `message_sent` event dated 08-14
+answered her reply and put her in cooldown.
+
+### 3. Draft, approve, send
+
+```text
+$ bin/followup draft --now 2026-08-17T09:00:00Z
+draft at 2026-08-17T09:00:00Z (2026-W34): 24 created, 0 already drafted
+```
+
+```text
+$ bin/followup draft --now 2026-08-17T09:00:00Z
+draft at 2026-08-17T09:00:00Z (2026-W34): 0 created, 24 already drafted
+```
+
+```text
+$ bin/followup approve --all
+approved 24
+```
+
+```text
+$ bin/followup send --now 2026-08-17T09:00:00Z
+send at 2026-08-17T09:00:00Z: 24 processed, 23 sent, 0 failed, 1 blocked, 0 skipped
+  #24 blocked: cooldown: customer last contacted at 2026-08-17T09:00:00Z, within 3 days of 2026-08-17T09:00:00Z
+```
+
+```text
+$ bin/followup send --now 2026-08-17T09:00:00Z
+send at 2026-08-17T09:00:00Z: 0 processed, 0 sent, 0 failed, 0 blocked, 0 skipped
+```
+
+The blocked row is Karen Nguyen. She has two open quotes, both drafted and
+approved. The higher score is sent first, and the second is then inside her
+cooldown:
+
+```text
+$ bin/followup outbox | awk '/^#/{show = /Karen Nguyen/} show'
+#21  sent     18.5   Q-1025  Karen Nguyen     generic_checkin     tries=1 sent_at=2026-08-17T09:00:00Z
+       key: Q-1025:generic_checkin:2026-W34
+       msg: Hi Karen, Jaden here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+#24  blocked  15.4   Q-1003  Karen Nguyen     generic_checkin     tries=0 sent_at=-
+       key: Q-1003:generic_checkin:2026-W34
+       msg: Hi Karen, Jaden here, checking in on your $850 quote. Still interested? I can get you on the schedule whenever you're ready.
+       err: cooldown: customer last contacted at 2026-08-17T09:00:00Z, within 3 days of 2026-08-17T09:00:00Z
+```
+
+### 4. A week later: a forced failure, then a retry
+
+`send --fail` needs approved rows and step 3 left none, so this drafts again at
+C. The new ISO week gives new idempotency keys.
+
+```text
+$ bin/followup draft --now 2026-08-24T09:00:00Z
+draft at 2026-08-24T09:00:00Z (2026-W35): 27 created, 0 already drafted
+```
+
+```text
+$ bin/followup approve --all
+approved 27
+```
+
+```text
+$ bin/followup send --now 2026-08-24T09:00:00Z --fail | head -4
+send at 2026-08-24T09:00:00Z: 27 processed, 0 sent, 27 failed, 0 blocked, 0 skipped
+  #25 failed: delivery failed (forced by --fail)
+  #26 failed: delivery failed (forced by --fail)
+  #27 failed: delivery failed (forced by --fail)
+```
+
+```text
+$ bin/followup retry --now 2026-08-24T09:00:00Z
+retry at 2026-08-24T09:00:00Z: 27 processed, 26 sent, 0 failed, 1 blocked, 0 skipped
+  #51 blocked: cooldown: customer last contacted at 2026-08-24T09:00:00Z, within 3 days of 2026-08-24T09:00:00Z
+```
+
+```text
+$ bin/followup retry --now 2026-08-24T09:00:00Z
+retry at 2026-08-24T09:00:00Z: 0 processed, 0 sent, 0 failed, 0 blocked, 0 skipped
+```
+
+Karen's second quote is blocked again, this time on the retry path.
+
+### 5. Two weeks later: the per-quote cap
+
+```text
+$ bin/followup candidates --now 2026-08-31T09:00:00Z | sed -n '1,6p;$p'
+candidates at 2026-08-31T09:00:00Z: 24
+#   score  quote   customer           amount   reason              why
+1   65.0   Q-1020  Walt Herrera       $18,000  big_quote_cold      $18,000 quote with no contact in 7.0 days
+2   65.0   Q-1021  Judy Faulk         $22,000  big_quote_cold      $22,000 quote with no contact in 7.0 days
+3   65.0   Q-1023  Tina Grady         $18,000  big_quote_cold      $18,000 quote with no contact in 7.0 days
+4   65.0   Q-1026  Hank Crane         $22,000  big_quote_cold      $22,000 quote with no contact in 7.0 days
+skipped: closed=3, max follow-ups reached=3
+```
+
+```text
+$ bin/followup outbox | head -1
+outbox: 51 rows  blocked=2 sent=49
+```
+
+Other commands: `bin/followup approve <id>` approves one row, and
+`bin/followup outbox` prints every row with its key, message and error.
+
+## How it's built
+
+**The event fold.** Events are stored once, keyed on `event_id`. Quote state is
+never stored: each run folds the events dated at or before "now" into a status
+and the last view, reply and contact per quote. File order plays no part.
+Either the snapshot or an event can close a quote, and nothing reopens one.
+See [the event fold](docs/architecture.md#the-event-fold).
+
+**The policy.** A pure function of quotes, events and "now". It drops quotes
+that are closed, too old, capped or in cooldown, gives each remaining quote the
+first signal it matches, and scores it. Every threshold is in one constants
+block. See [docs/policy.md](docs/policy.md).
+
+**The outbox state machine.** `pending` to `approved` to one of `sent`,
+`failed` or `blocked`. Retry picks up `failed` only. `sent` and `blocked` are
+terminal. One trigger rejects every other transition and another rejects
+deletes. See [the state machine](docs/architecture.md#the-outbox-state-machine).
+
+**How the guardrails are enforced.** Sending is one SQL `UPDATE` whose
+conditions are the row being approved, the quote being open and the customer
+being outside the cooldown, so there is no gap between checking and sending.
+Rows go one at a time, highest score first, each in its own transaction.
+Duplicate drafts are stopped by a `UNIQUE` idempotency key. See
+[the send statement](docs/architecture.md#the-send-statement) and
+[docs/verification.md](docs/verification.md).
+
+### In production
+
+`deliver(row)` in `lib/followup/outbox.rb` is the seam for a real provider.
+Today delivery runs inside the send transaction and a failure rolls the `sent`
+status back, which is sound for one process on SQLite. With a real provider I
+would add a `sending` status, pass the idempotency key to the provider so a
+crash cannot produce a second text, and take delivery receipts from the
+provider's webhooks into the existing event stream.
 
 ## Policy and why
 
@@ -141,8 +262,10 @@ Scoring details:
 
 Excluded entirely: closed quotes, quotes older than 60 days, quotes that have
 already had 3 follow-ups, and customers inside the cooldown. Follow-ups are
-counted per quote as `message_sent` events plus our own sent messages. There is
-no cap on candidates per run.
+counted per quote as `message_sent` events plus our own sent messages. The cap
+does not apply while a customer reply is unanswered: a reply after our last
+contact always makes the quote eligible as `replied_unanswered`. There is no
+cap on candidates per run.
 
 **Cooldown:** 3 days per customer (by phone number), across all of their
 quotes. A customer reply after our last contact lifts it, because they are
@@ -150,24 +273,23 @@ waiting on us. Our next send restarts it.
 
 ### Decisions the seed data forced
 
-- **`quote_sent` is not a follow-up contact.** It is a fifth event type, one
-  per quote, stamped at `created_at`. It is stored but does not start a
-  cooldown or count as answering a reply.
+- **`quote_sent` is not a follow-up contact.** It is the quote being delivered:
+  one per quote, stamped at `created_at`.
 - **Either source can close a quote, and nothing reopens it.** Q-1017 and
-  Q-1009 are closed in `quotes.json` with no event. A closed status in the
-  snapshot holds at every `now`; a `quote_accepted` event holds from its
-  timestamp.
-- **`last_contact_at` counts as a contact.** It disagrees with the
-  `message_sent` events on 22 of 30 quotes, and 17 have no event at all. I
-  treat it as one more outbound contact, because ignoring it would message
-  people the shop already reached some other way.
+  Q-1009 are closed in the snapshot with no event.
+- **`last_contact_at` counts as a contact.** 16 of 30 quotes record a contact
+  in the snapshot with no `message_sent` event, so ignoring it would message
+  people the shop had already reached.
+
+The queries behind those counts are in
+[docs/decisions.md](docs/decisions.md#what-the-seed-data-showed).
 
 ### Policy and send differ on purpose
 
-The policy is a pure function of `now`: events after `now` do not exist. The
-send boundary is stricter: any contact or acceptance already in the database
-blocks the send, whatever `now` is. The two only differ when replaying an
-earlier `now`, and then the send errs toward not messaging.
+The policy only sees events dated at or before `now`. Send is stricter: any
+contact or acceptance in the database blocks it, whatever `now` is. They differ
+only when an earlier `now` is replayed. See
+[the now parameter](docs/architecture.md#the-now-parameter).
 
 ### Other signals I would look for
 
@@ -177,49 +299,42 @@ TODO (author): edit.
 - Repeat views: three views in a day means more than one
 - Whether earlier follow-ups on this quote got any response
 
-## Production notes
+## Tests
 
-`deliver(row)` in `lib/followup/outbox.rb` is the seam for a real provider. It
-returns on success and raises `DeliveryError` on failure.
+Tests cover the three places where a mistake reaches a customer or corrupts
+state, and nothing else.
 
-Today the delivery call runs inside the send transaction, and a failure rolls
-the `sent` status back. That is sound for one process on SQLite. With a real
-provider I would:
+| File | Covers | Why it is risky |
+|---|---|---|
+| `test/events_state_test.rb` | Dedup, ordering, closing a quote from either source | The input is messy by design, and a wrong fold makes every later decision wrong |
+| `test/guardrails_test.rb` | Cooldown, closed quotes, duplicate drafts, the cap | The facts can change between approval and send |
+| `test/send_idempotency_test.rb` | Re-run, retry, fail then retry, illegal transitions | A double send is the failure a customer sees |
 
-- Add a `sending` status. Claim the row with the guarded `UPDATE`, commit, call
-  the provider, then record `sent` or `failed`.
-- Pass the idempotency key to the provider, so a crash between the provider
-  accepting and us recording cannot produce a second text.
-- Take `message_sent` and delivery receipts from the provider's webhooks, which
-  lets the existing event fold confirm what was delivered.
+The send tests count deliveries, not only row statuses.
 
-## Where I stopped
+```text
+$ grep -c 'def test_' test/*_test.rb
+test/events_state_test.rb:12
+test/guardrails_test.rb:14
+test/send_idempotency_test.rb:11
+```
 
-What is built: ingest, state derivation, policy, templates, the outbox flow and
-its guardrails, and 36 tests on the parts I consider risky.
+```text
+$ bin/test
+Run options: --seed 25450
 
-Known limits:
+# Running:
 
-- **The follow-up cap is flat.** Three per quote, then never again. The better
-  version is escalating backoff between touches (3, 7, 14 days).
-- **The cap also silences replies.** A customer who replies after the third
-  follow-up is skipped like any other capped quote.
-- **The cap is a policy exclusion only.** A row drafted before the cap was
-  reached can still be sent.
-- **Approved drafts do not expire.** A message approved today and sent next
-  week passes the guardrails but may carry a stale reason.
-- **A blocked or failed row holds its idempotency key.** That follow-up cannot
-  be drafted again until the next ISO week.
-- **ISO-week boundaries are arbitrary.** Sunday and Monday are in different
-  weeks, so two drafts can be a day apart. The cooldown still blocks the second
-  send.
-- **The cooldown exists twice,** in Ruby for the policy and in SQL for the
-  send. The tests cover the SQL one.
-- **Customer identity is an exact phone string match.**
-- **No opt-out handling and no quiet hours.** All times are UTC.
-- **Dismissal only comes from the snapshot.** There is no dismissed event type
-  in the data.
-- **Templates do not read the customer's reply.**
+.....................................
+
+Finished in 0.021882s, 1690.8875 runs/s, 4432.8672 assertions/s.
+
+37 runs, 97 assertions, 0 failures, 0 errors, 0 skips
+```
+
+`test/mutation_check.rb` weakens the code four ways and runs the suite against
+each, to check the tests can fail. All four are caught:
+[output](docs/verification.md#mutation-check).
 
 Not tested, by choice: score values and thresholds, template wording, CLI
 argument parsing.
@@ -266,3 +381,41 @@ Fourth, STOP handling, quiet hours and a timezone per shop. These are the
 rules that keep a shop out of trouble with carriers and customers, and the
 current build has none of them. After that, a simple approval screen, since
 owners will not use a CLI.
+
+## Where I stopped
+
+What is built: ingest, state derivation, policy, templates, the outbox flow and
+its guardrails, and tests on the parts I consider risky.
+
+Known limits:
+
+- **The follow-up cap is flat.** Three per quote, then never again. The better
+  version is escalating backoff between touches (3, 7, 14 days).
+- **The cap is a policy exclusion only.** A row drafted before the cap was
+  reached can still be sent.
+- **A draft cannot be rejected.** There is no reject command. A draft nobody
+  approves stays `pending` and is never sent.
+- **Approved drafts do not expire.** A message approved today and sent next
+  week passes the guardrails but may carry a stale reason.
+- **A blocked or failed row holds its idempotency key.** That follow-up cannot
+  be drafted again until the next ISO week.
+- **ISO-week boundaries are arbitrary.** Sunday and Monday are in different
+  weeks, so two drafts can be a day apart. The cooldown still blocks the second
+  send.
+- **The cooldown exists twice,** in Ruby for the policy and in SQL for the
+  send. The tests cover the SQL one.
+- **Customer identity is an exact phone string match.**
+- **No opt-out handling and no quiet hours.** All times are UTC.
+- **Dismissal only comes from the snapshot.** There is no dismissed event type
+  in the data.
+- **Templates do not read the customer's reply.**
+
+## Transcript and time
+
+The full coding-agent conversation is in
+[robby-transcript.md](robby-transcript.md).
+
+TODO (author): confirm the time spent. Steps 1 to 7 were committed between
+10:56 and 11:53 on 2026-09-27. The reply exemption and the documentation in
+`docs/` were written later the same day. The commit log is in
+[docs/verification.md](docs/verification.md#commit-log).

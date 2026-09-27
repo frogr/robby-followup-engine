@@ -11,8 +11,16 @@ module Followup
       quotes = JSON.parse(File.read(File.join(dir, "quotes.json"))).map { |h| Quote.from(h) }
       raw, malformed = read_jsonl(File.join(dir, "events.jsonl"))
       events = Events.normalize(raw)
-      inserted = 0
+      inserted = store(db, quotes, events)
 
+      { quotes: quotes.size, event_lines: raw.size + malformed, malformed: malformed,
+        invalid_or_duplicate_in_file: raw.size - events.size, unique_events: events.size,
+        inserted: inserted, already_stored: events.size - inserted }
+    end
+
+    # Returns how many events were new to storage.
+    def self.store(db, quotes, events)
+      inserted = 0
       db.transaction do
         quotes.each { |q| upsert_quote(db, q) }
         events.each do |e|
@@ -22,10 +30,7 @@ module Followup
           inserted += db.changes
         end
       end
-
-      { quotes: quotes.size, event_lines: raw.size + malformed, malformed: malformed,
-        invalid_or_duplicate_in_file: raw.size - events.size, unique_events: events.size,
-        inserted: inserted, already_stored: events.size - inserted }
+      inserted
     end
 
     def self.read_jsonl(path)

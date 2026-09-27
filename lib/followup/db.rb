@@ -81,6 +81,12 @@ module Followup
       db.execute("SELECT * FROM quotes ORDER BY id").map { |row| Quote.from(row) }
     end
 
+    # Messages this engine already sent, as [customer_phone, Time].
+    def self.sent_contacts(db)
+      db.execute("SELECT customer_phone, sent_at FROM outbox WHERE status = 'sent'")
+        .map { |r| [r["customer_phone"], Followup.time(r["sent_at"])] }
+    end
+
     # Always read in event-time order, never insertion order.
     def self.events(db)
       rows = db.execute("SELECT * FROM events ORDER BY ts, event_id")

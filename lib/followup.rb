@@ -13,10 +13,15 @@ module Followup
   rescue ArgumentError
     nil
   end
+
+  def self.money(amount)
+    "$#{amount.to_i.to_s.reverse.scan(/\d{1,3}/).join(",").reverse}"
+  end
 end
 
 require_relative "followup/events"
 require_relative "followup/state"
+require_relative "followup/policy"
 require_relative "followup/db"
 require_relative "followup/ingest"
 require_relative "followup/cli"

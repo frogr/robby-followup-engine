@@ -23,11 +23,17 @@ module Followup
     CLOSED = %w[accepted dismissed].freeze
 
     # Pure: (quotes, events, now) -> Array<QuoteState>. Events after now are
-    # invisible, and so are quotes created after now.
-    def self.derive(quotes, events, now)
+    # invisible, and so are quotes created after now. sent is the messages this
+    # engine already sent, as [quote_id, Time]; those always count, whatever
+    # now is, because we know we sent them.
+    def self.derive(quotes, events, now, sent: [])
       by_quote = events.select { |e| e.ts <= now }.group_by(&:quote_id)
-      quotes.select { |q| q.created_at <= now }
-            .map { |q| fold(q, by_quote.fetch(q.id, []), now) }
+      sent_by_quote = sent.group_by(&:first)
+      quotes.select { |q| q.created_at <= now }.map do |q|
+        state = fold(q, by_quote.fetch(q.id, []), now)
+        sent_by_quote.fetch(q.id, []).each { |_, at| state.last_outbound_at = latest(state.last_outbound_at, at) }
+        state
+      end
     end
 
     # Either source can close a quote and nothing reopens it: a closed status in
@@ -49,12 +55,11 @@ module Followup
     end
 
     # Cooldown is per customer: phone -> latest outbound contact across all of
-    # that customer's quotes, including messages this engine already sent.
-    # sent is an Array of [customer_phone, Time].
-    def self.last_contact_by_customer(states, sent = [])
-      contacts = states.map { |s| [s.quote.customer_phone, s.last_outbound_at] } + sent
-      contacts.each_with_object({}) do |(phone, at), acc|
-        acc[phone] = latest(acc[phone], at) if at
+    # that customer's quotes.
+    def self.last_contact_by_customer(states)
+      states.each_with_object({}) do |s, acc|
+        phone = s.quote.customer_phone
+        acc[phone] = latest(acc[phone], s.last_outbound_at) if s.last_outbound_at
       end
     end
 

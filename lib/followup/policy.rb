@@ -31,10 +31,10 @@ module Followup
     Result = Struct.new(:candidates, :skipped, keyword_init: true)
 
     # Pure: (quotes, events, now) plus the messages this engine already sent,
-    # as [customer_phone, Time] pairs. Same inputs, same output, same order.
+    # as [quote_id, Time] pairs. Same inputs, same output, same order.
     def self.run(quotes, events, now, sent: [])
-      states = State.derive(quotes, events, now)
-      last_contact = State.last_contact_by_customer(states, sent)
+      states = State.derive(quotes, events, now, sent: sent)
+      last_contact = State.last_contact_by_customer(states)
       last_reply = last_reply_by_customer(states)
       skipped = Hash.new(0)
 

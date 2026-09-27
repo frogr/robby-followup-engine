@@ -62,6 +62,21 @@ module Followup
         SELECT RAISE(ABORT, 'illegal outbox transition');
       END;
 
+      -- Every time we contacted a customer, from any source, on any quote.
+      CREATE VIEW IF NOT EXISTS customer_contacts AS
+        SELECT q.customer_phone AS customer_phone, e.ts AS at
+          FROM events e JOIN quotes q ON q.id = e.quote_id
+         WHERE e.type = 'message_sent' AND COALESCE(e.direction, 'outbound') <> 'inbound'
+        UNION ALL
+        SELECT customer_phone, last_contact_at FROM quotes WHERE last_contact_at IS NOT NULL
+        UNION ALL
+        SELECT customer_phone, sent_at FROM outbox WHERE status = 'sent';
+
+      CREATE VIEW IF NOT EXISTS customer_replies AS
+        SELECT q.customer_phone AS customer_phone, e.ts AS at
+          FROM events e JOIN quotes q ON q.id = e.quote_id
+         WHERE e.type = 'customer_replied';
+
       CREATE TRIGGER IF NOT EXISTS outbox_no_delete
       BEFORE DELETE ON outbox
       BEGIN
@@ -81,10 +96,10 @@ module Followup
       db.execute("SELECT * FROM quotes ORDER BY id").map { |row| Quote.from(row) }
     end
 
-    # Messages this engine already sent, as [customer_phone, Time].
+    # Messages this engine already sent, as [quote_id, Time].
     def self.sent_contacts(db)
-      db.execute("SELECT customer_phone, sent_at FROM outbox WHERE status = 'sent'")
-        .map { |r| [r["customer_phone"], Followup.time(r["sent_at"])] }
+      db.execute("SELECT quote_id, sent_at FROM outbox WHERE status = 'sent'")
+        .map { |r| [r["quote_id"], Followup.time(r["sent_at"])] }
     end
 
     # Always read in event-time order, never insertion order.

@@ -51,7 +51,7 @@ module Followup
         out.puts format("%-3d %-6.1f %-7s %-18s %-8s %-19s %s", i + 1, c.score, c.quote_id,
                         c.customer_name, Followup.money(c.amount), c.reason, c.explanation)
       end
-      out.puts "skipped: " + result.skipped.sort.map { |k, v| "#{k}=#{v}" }.join(" ")
+      out.puts "skipped: " + result.skipped.sort.map { |k, v| "#{k}=#{v}" }.join(", ")
     end
 
     def self.draft(args, out)

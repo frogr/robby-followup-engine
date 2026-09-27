@@ -14,8 +14,9 @@ module Followup
   end
 
   # A quote as of one "now": its snapshot fields plus everything folded from events.
+  # followups counts message_sent events plus messages this engine sent.
   QuoteState = Struct.new(:quote, :status, :last_viewed_at, :last_replied_at,
-                          :last_outbound_at, keyword_init: true) do
+                          :last_outbound_at, :followups, keyword_init: true) do
     def open? = status == "open"
   end
 
@@ -31,7 +32,10 @@ module Followup
       sent_by_quote = sent.group_by(&:first)
       quotes.select { |q| q.created_at <= now }.map do |q|
         state = fold(q, by_quote.fetch(q.id, []), now)
-        sent_by_quote.fetch(q.id, []).each { |_, at| state.last_outbound_at = latest(state.last_outbound_at, at) }
+        sent_by_quote.fetch(q.id, []).each do |_, at|
+          state.last_outbound_at = latest(state.last_outbound_at, at)
+          state.followups += 1
+        end
         state
       end
     end
@@ -39,7 +43,8 @@ module Followup
     # Either source can close a quote and nothing reopens it: a closed status in
     # quotes.json holds at every now, an accepted event holds from its timestamp.
     def self.fold(quote, events, now)
-      state = QuoteState.new(quote: quote, status: CLOSED.include?(quote.status) ? quote.status : "open")
+      state = QuoteState.new(quote: quote, followups: 0,
+                             status: CLOSED.include?(quote.status) ? quote.status : "open")
       state.last_outbound_at = quote.last_contact_at if quote.last_contact_at && quote.last_contact_at <= now
 
       events.each do |e|
@@ -47,7 +52,10 @@ module Followup
         when "quote_viewed"     then state.last_viewed_at = latest(state.last_viewed_at, e.ts)
         when "customer_replied" then state.last_replied_at = latest(state.last_replied_at, e.ts)
         when "message_sent"
-          state.last_outbound_at = latest(state.last_outbound_at, e.ts) unless e.direction == "inbound"
+          next if e.direction == "inbound"
+
+          state.last_outbound_at = latest(state.last_outbound_at, e.ts)
+          state.followups += 1
         when "quote_accepted"   then state.status = "accepted" if state.open?
         end
       end

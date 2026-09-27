@@ -113,6 +113,26 @@ class GuardrailsTest < FollowupTest
     assert_raises(SQLite3::ConstraintException) { db.execute("UPDATE outbox SET status = 'approved'") }
   end
 
+  # ---- per-quote cap -----------------------------------------------------------
+
+  def test_a_quote_with_three_follow_ups_is_never_a_candidate_again
+    texts = [20, 15, 10].map { |days| raw("message_sent", "Q1", NOW - days * DAY) }
+    db = memory_db(quotes: [quote("Q1", created_at: NOW - 30 * DAY), quote("Q2", created_at: NOW - 30 * DAY)],
+                   events: texts + texts.first(2).map { |e| e.merge("quote_id" => "Q2") })
+
+    result = Policy.run(DB.quotes(db), DB.events(db), NOW, sent: DB.sent_contacts(db))
+    assert_equal %w[Q2], result.candidates.map(&:quote_id)
+    assert_equal({ "max follow-ups reached" => 1 }, result.skipped)
+
+    # Q2 has two events; our own send is its third.
+    draft_and_approve(db)
+    Outbox.send_approved(db, NOW)
+    later = Policy.run(DB.quotes(db), DB.events(db), NOW + 10 * DAY, sent: DB.sent_contacts(db))
+
+    assert_empty later.candidates
+    assert_equal({ "max follow-ups reached" => 2 }, later.skipped)
+  end
+
   # ---- never draft the same follow-up twice ------------------------------------
 
   def test_drafting_again_in_the_same_week_creates_nothing

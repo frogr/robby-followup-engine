@@ -11,6 +11,7 @@ module Followup
 
     COOLDOWN_DAYS      = 3     # per customer, across all of their quotes
     MAX_AGE_DAYS       = 60    # older quotes are never candidates
+    MAX_FOLLOWUPS_PER_QUOTE = 3 # message_sent events plus our own sent messages
     VIEW_WINDOW_HOURS  = 48    # a view is "recent" for this long
     BIG_AMOUNT         = 2000  # dollars
     BIG_QUIET_DAYS     = 7     # big quote with no contact for this long
@@ -54,6 +55,7 @@ module Followup
     def self.skip_reason(state, now, customer_last_contact, customer_last_reply)
       return "closed" unless state.open?
       return "too_old" if now - state.quote.created_at > MAX_AGE_DAYS * DAY
+      return "max follow-ups reached" if state.followups >= MAX_FOLLOWUPS_PER_QUOTE
       return "cooldown" if cooling_down?(now, customer_last_contact, customer_last_reply)
 
       nil

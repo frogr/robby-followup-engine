@@ -10,20 +10,21 @@ Needs Ruby 3.x and the `sqlite3` gem (`gem install sqlite3`). Minitest ships
 with Ruby.
 
 ```sh
-bin/test                 # 35 tests
+bin/test                 # 36 tests
 rm -f followup.sqlite3   # start the demo from an empty database
 ```
 
 `now` is always an argument. The engine never reads the wall clock, so every
 command below gives the same output on any day.
 
-The demo uses three times. The seed events run from 2026-08-01 to 2026-08-16.
+The demo uses four times. The seed events run from 2026-08-01 to 2026-08-16.
 
 | Name | Value | Why |
 |---|---|---|
 | A | `2026-08-13T09:00:00Z` | Mid-stream: later events are invisible |
 | B | `2026-08-17T09:00:00Z` | After every event, ISO week 34 |
 | C | `2026-08-24T09:00:00Z` | One week on, ISO week 35 |
+| D | `2026-08-31T09:00:00Z` | Two weeks on: the per-quote cap starts to bite |
 
 ```sh
 bin/followup ingest
@@ -44,6 +45,8 @@ bin/followup send --now 2026-08-24T09:00:00Z --fail  # 27 failed, 0 sent
 bin/followup retry --now 2026-08-24T09:00:00Z        # 26 sent, 1 blocked
 bin/followup retry --now 2026-08-24T09:00:00Z        # 0 processed
 
+bin/followup candidates --now 2026-08-31T09:00:00Z   # 24 candidates, 3 skipped: max follow-ups reached
+
 bin/followup outbox                                  # 51 rows: sent=49 blocked=2
 ```
 
@@ -56,6 +59,9 @@ What to look for:
 - **`send --fail` needs approved rows**, and after the first send there are
   none. The second half of the demo drafts again a week later, which also shows
   the ISO-week rule producing new follow-ups.
+- **The cap first fires at D.** Q-1005, Q-1012 and Q-1027 each have one
+  `message_sent` event plus our sends at B and C, which makes three. It does
+  not fire at A, B or C.
 - `approve <id>` approves a single row.
 
 ## How state is modeled
@@ -133,8 +139,10 @@ Scoring details:
   to 0.0 at 60 days.
 - **Ties** break on quote id, so output order is stable.
 
-Excluded entirely: closed quotes, quotes older than 60 days, and customers
-inside the cooldown. There is no cap on candidates per run.
+Excluded entirely: closed quotes, quotes older than 60 days, quotes that have
+already had 3 follow-ups, and customers inside the cooldown. Follow-ups are
+counted per quote as `message_sent` events plus our own sent messages. There is
+no cap on candidates per run.
 
 **Cooldown:** 3 days per customer (by phone number), across all of their
 quotes. A customer reply after our last contact lifts it, because they are
@@ -163,14 +171,11 @@ earlier `now`, and then the send errs toward not messaging.
 
 ### Other signals I would look for
 
-TODO (author): trim or extend.
+TODO (author): edit.
 
-- Repeat views: three views in a day means more than one
 - What the reply said: "too expensive" and "when can you start" need different messages
+- Repeat views: three views in a day means more than one
 - Whether earlier follow-ups on this quote got any response
-- Quote expiry date, if quotes have one
-- Job type and season: a dead furnace in January is not a repaint
-- The customer's usual channel and time of day
 
 ## Production notes
 
@@ -191,13 +196,16 @@ provider I would:
 ## Where I stopped
 
 What is built: ingest, state derivation, policy, templates, the outbox flow and
-its guardrails, and 35 tests on the parts I consider risky.
+its guardrails, and 36 tests on the parts I consider risky.
 
 Known limits:
 
-- **No cap on follow-ups per quote.** A quiet open quote gets a check-in every
-  week until it is 60 days old. In the demo, all 27 open quotes are drafted
-  again at time C.
+- **The follow-up cap is flat.** Three per quote, then never again. The better
+  version is escalating backoff between touches (3, 7, 14 days).
+- **The cap also silences replies.** A customer who replies after the third
+  follow-up is skipped like any other capped quote.
+- **The cap is a policy exclusion only.** A row drafted before the cap was
+  reached can still be sent.
 - **Approved drafts do not expire.** A message approved today and sent next
   week passes the guardrails but may carry a stale reason.
 - **A blocked or failed row holds its idempotency key.** That follow-up cannot
@@ -218,8 +226,43 @@ argument parsing.
 
 ## Running this for 50 shops
 
-TODO (author).
+The engine does not change. Its inputs do. Today the policy constants are one
+block in one file; for a parent company they become configuration rows, with
+defaults set at the parent level and overrides per shop for the cooldown, the
+big-quote threshold, the quiet days, and which reason tiers are switched on at
+all. Every table gets a shop id. Customer identity becomes shop plus phone, so
+one person quoted by two shops is two customers, and one shop's follow-up does
+not start a cooldown at the other. The idempotency key becomes shop, quote,
+reason and week. Each shop sends from its own number, so outbox rows carry the
+number they send from, and sends are queued per number, because carrier rate
+limits and sender registration apply per number and not per company.
+
+The bigger change is approval, which stops being a button and becomes a
+per-shop policy. Some owners want to approve everything. Others want generic
+check-ins sent automatically and only the big-quote messages put in front of
+them. I would expose that as an autonomy level per reason tier, and only raise
+it for a shop once that shop's approval rate on that tier is high enough to
+justify it. The parent company will also want to know which shops' follow-ups
+convert. A quote accepted after a sent follow-up is the outcome signal, and it
+is how the weights get tuned per shop from results instead of by hand.
 
 ## What I would build next with another day
 
-TODO (author).
+First, escalating backoff in place of the flat cap. Three follow-ups and then
+silence is a blunt rule. Spacing the touches at 3, 7 and 14 days matches how a
+person would chase a quote.
+
+Second, a sending status and a real provider with a delivery webhook. Today a
+message is either sent or not. With a real carrier there is a gap between "we
+sent it" and "the carrier confirmed it", and a failure inside that gap has to
+be recoverable without texting the customer twice.
+
+Third, LLM drafting behind the template, with the template as the fallback
+when the model is unavailable or its draft is rejected. I would grade it on
+whether the owner approved the draft unedited or changed it first, since every
+edit is free training signal about what that shop wants to sound like.
+
+Fourth, STOP handling, quiet hours and a timezone per shop. These are the
+rules that keep a shop out of trouble with carriers and customers, and the
+current build has none of them. After that, a simple approval screen, since
+owners will not use a CLI.

@@ -27,9 +27,23 @@ def write(name, text)
   puts format("%-28s %3d lines", name, text.lines.size)
 end
 
+# The demo in one block: each command with its summary lines, taken from the
+# same runs as the full captures.
+DEMO = {
+  "ingest_first" => /^inserted/, "ingest_again" => /^inserted/,
+  "candidates_a" => /^candidates at|^skipped/, "candidates_b" => /^candidates at|^skipped/,
+  "draft_b" => /^draft at/, "draft_b_again" => /^draft at/, "approve_b" => /^approved/,
+  "send_b" => /^send at/, "send_b_again" => /^send at/,
+  "draft_c" => /^draft at/, "approve_c" => /^approved/, "send_c_fail" => /^send at/,
+  "retry_c" => /^retry at/, "retry_c_again" => /^retry at/,
+  "candidates_d" => /^candidates at|^skipped/, "outbox_summary" => /^outbox:/
+}.freeze
+DEMO_LINES = []
+
 def shell(name, command)
   output, = Open3.capture2e("bash", "-c", command, chdir: ROOT)
   write(name, "$ #{command}\n#{output}")
+  DEMO_LINES << "$ #{command}" << output.lines.grep(DEMO[name]).map { |l| "  #{l.squeeze(" ")}" }.join if DEMO.key?(name)
 end
 
 def sql(name, statement)
@@ -176,6 +190,8 @@ shell "outbox_first_rows", "bin/followup outbox | head -9"
 shell "outbox_karen", "bin/followup outbox | awk '/^#/{show = /Karen Nguyen/} show'"
 shell "outbox_full", "bin/followup outbox"
 shell "schema", "sqlite3 followup.sqlite3 .schema"
+
+write "demo_summary", DEMO_LINES.map(&:rstrip).join("\n")
 
 # ---- replaying an earlier now, on a separate database ---------------------------------
 REPLAY = "FOLLOWUP_DB=replay.sqlite3"

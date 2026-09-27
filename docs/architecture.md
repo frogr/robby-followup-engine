@@ -13,6 +13,7 @@ Contents:
 - [The send statement](#the-send-statement)
 - [The idempotency key](#the-idempotency-key)
 - [The now parameter](#the-now-parameter)
+- [In production](#in-production)
 
 ## Data flow
 
@@ -522,7 +523,7 @@ rows pass, because neither would be `sent` when the conditions were evaluated.
   send path in the code.
 - **Delivery inside the transaction** is sound for one process on SQLite. With
   a real provider the transaction would be held open across a network call.
-  The README section "In production" describes the `sending` status that would
+  [In production](#in-production) describes the `sending` status that would
   replace it.
 
 ## The idempotency key
@@ -668,3 +669,21 @@ id  quote_id  status
 Q-1019 is blocked by the 08-14 contact that the policy at A could not see.
 Q-1003 is Karen Nguyen's second quote, blocked by the message sent to her a
 moment earlier in the same run.
+
+## In production
+
+Nothing is delivered today. `deliver(row)` in `lib/followup/outbox.rb` is the
+seam for a real provider: it returns on success and raises `DeliveryError` on
+failure. It has two implementations, one that does nothing and one that always
+fails, which is what `send --fail` uses.
+
+Delivery runs inside the send transaction, and a failure rolls the `sent`
+status back. That is sound for one process on SQLite. With a real provider:
+
+- **Add a `sending` status.** Claim the row with the guarded `UPDATE`, commit,
+  call the provider, then record `sent` or `failed`. The transaction is no
+  longer held open across a network call.
+- **Pass the idempotency key to the provider.** A crash between the provider
+  accepting the message and us recording it then cannot produce a second text.
+- **Take delivery receipts from the provider's webhooks** into the event
+  stream, so the existing fold confirms what was delivered.

@@ -1,10 +1,10 @@
 $ bin/test
-Run options: --seed 25450
+Run options: --seed 4099
 
 # Running:
 
 .....................................
 
-Finished in 0.021882s, 1690.8875 runs/s, 4432.8672 assertions/s.
+Finished in 0.021961s, 1684.8049 runs/s, 4416.9209 assertions/s.
 
 37 runs, 97 assertions, 0 failures, 0 errors, 0 skips

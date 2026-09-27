@@ -13,6 +13,7 @@ Contents:
 - [Scoring](#scoring)
 - [Worked examples](#worked-examples)
 - [Message templates](#message-templates)
+- [Other signals I would look for](#other-signals-i-would-look-for)
 - [Limitations](#limitations)
 
 ## The constants block
@@ -290,6 +291,14 @@ outbox: 51 rows  blocked=2 sent=49
 #3   sent     103.8  Q-1015  Angela Ortiz     replied_unanswered  tries=1 sent_at=2026-08-17T09:00:00Z
        key: Q-1015:replied_unanswered:2026-W34
 ```
+
+## Other signals I would look for
+
+TODO (author): edit.
+
+- What the reply said: "too expensive" and "when can you start" need different messages
+- Repeat views: three views in a day means more than one
+- Whether earlier follow-ups on this quote got any response
 
 ## Limitations
 

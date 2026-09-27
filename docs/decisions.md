@@ -225,7 +225,7 @@ $ sqlite3 followup.sqlite3 "SELECT COUNT(*) FROM events WHERE quote_id NOT IN (S
 
 | What was wrong | How it was found | What changed |
 |---|---|---|
-| The README said 17 quotes had a snapshot contact with no `message_sent` event. The number is 16. | Replacing hand-written numbers with captured queries | The README now says 16, and the query is in this document |
+| An earlier README said 17 quotes had a snapshot contact with no `message_sent` event. The number is 16. | Replacing hand-written numbers with captured queries | The count is now taken from a query, shown at the top of this document |
 | A reply answered by this engine was listed as `replied_unanswered` again the next week | Planning the demo at C | The engine's sent messages now count as contact on the quote |
 | Removing the status condition from the send statement was not caught by any test | The mutation check | `test_a_stale_worker_cannot_resend_a_sent_row` was added |
 | A customer who replied after the third follow-up was never answered | Review of the cap | The reply exemption was added |

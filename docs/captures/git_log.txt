@@ -6,3 +6,4 @@ e002ce5  2026-09-27 11:30  Step 4: outbox with draft, approve, send, retry and g
 d850427  2026-09-27 11:33  Step 5: tests for dedup and ordering, the three guardrails, and idempotent send
 da30f64  2026-09-27 11:34  Step 6: README skeleton with demo sequence, policy and where I stopped
 2ce1698  2026-09-27 11:53  Step 7: per-quote follow-up cap, README sections for 50 shops and what is next
+ca6653e  2026-09-27 17:58  Step 9: documentation in docs/ with captured output, reply exemption for the cap, mutation check

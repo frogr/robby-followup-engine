@@ -1,0 +1,35 @@
+$ bin/followup ingest
+  inserted 82
+$ bin/followup ingest
+  inserted 0
+$ bin/followup candidates --now 2026-08-13T09:00:00Z
+  candidates at 2026-08-13T09:00:00Z: 19
+  skipped: closed=3, cooldown=3, no_signal=5
+$ bin/followup candidates --now 2026-08-17T09:00:00Z
+  candidates at 2026-08-17T09:00:00Z: 24
+  skipped: closed=3, cooldown=1, no_signal=2
+$ bin/followup draft --now 2026-08-17T09:00:00Z
+  draft at 2026-08-17T09:00:00Z (2026-W34): 24 created, 0 already drafted
+$ bin/followup draft --now 2026-08-17T09:00:00Z
+  draft at 2026-08-17T09:00:00Z (2026-W34): 0 created, 24 already drafted
+$ bin/followup approve --all
+  approved 24
+$ bin/followup send --now 2026-08-17T09:00:00Z
+  send at 2026-08-17T09:00:00Z: 24 processed, 23 sent, 0 failed, 1 blocked, 0 skipped
+$ bin/followup send --now 2026-08-17T09:00:00Z
+  send at 2026-08-17T09:00:00Z: 0 processed, 0 sent, 0 failed, 0 blocked, 0 skipped
+$ bin/followup draft --now 2026-08-24T09:00:00Z
+  draft at 2026-08-24T09:00:00Z (2026-W35): 27 created, 0 already drafted
+$ bin/followup approve --all
+  approved 27
+$ bin/followup send --now 2026-08-24T09:00:00Z --fail | head -4
+  send at 2026-08-24T09:00:00Z: 27 processed, 0 sent, 27 failed, 0 blocked, 0 skipped
+$ bin/followup retry --now 2026-08-24T09:00:00Z
+  retry at 2026-08-24T09:00:00Z: 27 processed, 26 sent, 0 failed, 1 blocked, 0 skipped
+$ bin/followup retry --now 2026-08-24T09:00:00Z
+  retry at 2026-08-24T09:00:00Z: 0 processed, 0 sent, 0 failed, 0 blocked, 0 skipped
+$ bin/followup candidates --now 2026-08-31T09:00:00Z
+  candidates at 2026-08-31T09:00:00Z: 24
+  skipped: closed=3, max follow-ups reached=3
+$ bin/followup outbox | head -1
+  outbox: 51 rows blocked=2 sent=49

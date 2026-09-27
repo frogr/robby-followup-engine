@@ -600,49 +600,49 @@ test/send_idempotency_test.rb:11
 
 ```text
 $ bin/test --verbose
-Run options: --verbose --seed 47389
+Run options: --verbose --seed 54644
 
 # Running:
 
-EventsStateTest#test_a_later_snapshot_cannot_reopen_a_closed_quote = 0.00 s = .
-EventsStateTest#test_events_without_an_id_dedup_on_type_quote_and_timestamp = 0.00 s = .
-EventsStateTest#test_file_order_does_not_decide_whether_a_reply_was_answered = 0.00 s = .
-EventsStateTest#test_activity_after_acceptance_does_not_reopen_the_quote = 0.00 s = .
-EventsStateTest#test_seed_file_has_88_lines_and_82_distinct_events_in_time_order = 0.00 s = .
-EventsStateTest#test_a_quote_closed_in_the_snapshot_stays_closed_with_no_event = 0.00 s = .
-EventsStateTest#test_ingesting_the_same_events_again_stores_nothing_new = 0.00 s = .
-EventsStateTest#test_an_accepted_event_beats_an_open_status_in_the_snapshot = 0.00 s = .
-EventsStateTest#test_an_accepted_event_later_than_now_has_not_happened_yet = 0.00 s = .
-EventsStateTest#test_unusable_records_are_dropped_not_fatal = 0.00 s = .
-EventsStateTest#test_events_are_ordered_by_event_time_not_file_order = 0.00 s = .
-EventsStateTest#test_a_repeated_event_id_is_stored_once = 0.00 s = .
-GuardrailsTest#test_drafting_again_in_the_same_week_creates_nothing = 0.00 s = .
-GuardrailsTest#test_a_quote_with_three_follow_ups_is_never_a_candidate_again = 0.00 s = .
-GuardrailsTest#test_a_customer_reply_after_our_last_contact_lifts_the_cooldown = 0.00 s = .
-GuardrailsTest#test_the_same_reason_in_a_later_iso_week_is_a_new_follow_up = 0.00 s = .
-GuardrailsTest#test_a_quote_dismissed_in_a_newer_snapshot_is_blocked = 0.00 s = .
-GuardrailsTest#test_the_database_itself_rejects_a_duplicate_idempotency_key = 0.00 s = .
-GuardrailsTest#test_a_message_sent_event_that_lands_after_approval_blocks_the_send = 0.00 s = .
-GuardrailsTest#test_policy_skips_a_customer_contacted_on_another_quote = 0.00 s = .
-GuardrailsTest#test_cooldown_ends_exactly_three_days_after_the_last_contact = 0.00 s = .
-GuardrailsTest#test_our_own_send_restarts_the_cooldown_even_after_a_reply = 0.00 s = .
-GuardrailsTest#test_a_reply_after_the_third_follow_up_is_still_answered = 0.00 s = .
-GuardrailsTest#test_two_quotes_for_one_customer_send_one_and_block_the_other = 0.00 s = .
-GuardrailsTest#test_blocked_is_terminal_and_retry_does_not_touch_it = 0.00 s = .
-GuardrailsTest#test_a_quote_accepted_after_approval_is_blocked = 0.00 s = .
-SendIdempotencyTest#test_retry_runs_the_same_guardrails_as_send = 0.00 s = .
-SendIdempotencyTest#test_a_stale_worker_cannot_resend_a_sent_row = 0.00 s = .
 SendIdempotencyTest#test_a_retry_that_fails_again_stays_failed_and_can_be_retried = 0.00 s = .
-SendIdempotencyTest#test_a_failed_delivery_is_recorded_as_failed_and_never_as_sent = 0.00 s = .
-SendIdempotencyTest#test_retry_only_picks_up_failed_rows = 0.00 s = .
-SendIdempotencyTest#test_fail_then_retry_delivers_each_message_exactly_once = 0.00 s = .
-SendIdempotencyTest#test_sending_twice_delivers_once = 0.00 s = .
 SendIdempotencyTest#test_nothing_is_sent_without_approval = 0.00 s = .
+SendIdempotencyTest#test_a_failed_delivery_is_recorded_as_failed_and_never_as_sent = 0.00 s = .
+SendIdempotencyTest#test_a_row_cannot_skip_approval = 0.00 s = .
+SendIdempotencyTest#test_retry_only_picks_up_failed_rows = 0.00 s = .
+SendIdempotencyTest#test_a_stale_worker_cannot_resend_a_sent_row = 0.00 s = .
+SendIdempotencyTest#test_fail_then_retry_delivers_each_message_exactly_once = 0.00 s = .
+SendIdempotencyTest#test_retry_runs_the_same_guardrails_as_send = 0.00 s = .
+SendIdempotencyTest#test_sending_twice_delivers_once = 0.00 s = .
 SendIdempotencyTest#test_sent_is_terminal = 0.00 s = .
 SendIdempotencyTest#test_rerunning_the_whole_pipeline_delivers_nothing_more = 0.00 s = .
-SendIdempotencyTest#test_a_row_cannot_skip_approval = 0.00 s = .
+EventsStateTest#test_a_repeated_event_id_is_stored_once = 0.00 s = .
+EventsStateTest#test_a_quote_closed_in_the_snapshot_stays_closed_with_no_event = 0.00 s = .
+EventsStateTest#test_events_without_an_id_dedup_on_type_quote_and_timestamp = 0.00 s = .
+EventsStateTest#test_ingesting_the_same_events_again_stores_nothing_new = 0.00 s = .
+EventsStateTest#test_an_accepted_event_later_than_now_has_not_happened_yet = 0.00 s = .
+EventsStateTest#test_a_later_snapshot_cannot_reopen_a_closed_quote = 0.00 s = .
+EventsStateTest#test_file_order_does_not_decide_whether_a_reply_was_answered = 0.00 s = .
+EventsStateTest#test_activity_after_acceptance_does_not_reopen_the_quote = 0.00 s = .
+EventsStateTest#test_an_accepted_event_beats_an_open_status_in_the_snapshot = 0.00 s = .
+EventsStateTest#test_seed_file_has_88_lines_and_82_distinct_events_in_time_order = 0.00 s = .
+EventsStateTest#test_unusable_records_are_dropped_not_fatal = 0.00 s = .
+EventsStateTest#test_events_are_ordered_by_event_time_not_file_order = 0.00 s = .
+GuardrailsTest#test_a_reply_after_the_third_follow_up_is_still_answered = 0.00 s = .
+GuardrailsTest#test_a_quote_accepted_after_approval_is_blocked = 0.00 s = .
+GuardrailsTest#test_the_database_itself_rejects_a_duplicate_idempotency_key = 0.00 s = .
+GuardrailsTest#test_a_message_sent_event_that_lands_after_approval_blocks_the_send = 0.00 s = .
+GuardrailsTest#test_our_own_send_restarts_the_cooldown_even_after_a_reply = 0.00 s = .
+GuardrailsTest#test_policy_skips_a_customer_contacted_on_another_quote = 0.00 s = .
+GuardrailsTest#test_cooldown_ends_exactly_three_days_after_the_last_contact = 0.00 s = .
+GuardrailsTest#test_a_customer_reply_after_our_last_contact_lifts_the_cooldown = 0.00 s = .
+GuardrailsTest#test_drafting_again_in_the_same_week_creates_nothing = 0.00 s = .
+GuardrailsTest#test_a_quote_dismissed_in_a_newer_snapshot_is_blocked = 0.00 s = .
+GuardrailsTest#test_a_quote_with_three_follow_ups_is_never_a_candidate_again = 0.00 s = .
+GuardrailsTest#test_the_same_reason_in_a_later_iso_week_is_a_new_follow_up = 0.00 s = .
+GuardrailsTest#test_two_quotes_for_one_customer_send_one_and_block_the_other = 0.00 s = .
+GuardrailsTest#test_blocked_is_terminal_and_retry_does_not_touch_it = 0.00 s = .
 
-Finished in 0.021029s, 1759.4750 runs/s, 4612.6777 assertions/s.
+Finished in 0.022359s, 1654.8146 runs/s, 4338.2978 assertions/s.
 
 37 runs, 97 assertions, 0 failures, 0 errors, 0 skips
 ```
@@ -701,7 +701,7 @@ send statement and the event normalizer. It does not cover the policy.
 
 ## Commit log
 
-At the time of the capture, before the commit that added these documents:
+At the time of the last capture run:
 
 ```text
 $ git log --reverse --format='%h  %ad  %s' --date=format:'%Y-%m-%d %H:%M'
@@ -712,6 +712,7 @@ e002ce5  2026-09-27 11:30  Step 4: outbox with draft, approve, send, retry and g
 d850427  2026-09-27 11:33  Step 5: tests for dedup and ordering, the three guardrails, and idempotent send
 da30f64  2026-09-27 11:34  Step 6: README skeleton with demo sequence, policy and where I stopped
 2ce1698  2026-09-27 11:53  Step 7: per-quote follow-up cap, README sections for 50 shops and what is next
+ca6653e  2026-09-27 17:58  Step 9: documentation in docs/ with captured output, reply exemption for the cap, mutation check
 ```
 
 ## What is not verified

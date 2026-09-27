@@ -52,14 +52,14 @@ Every threshold and weight is here, copied from the source:
 A quote is tested against these in order. The first one that applies is the
 skip reason that gets counted, and the rest are not evaluated.
 
-| Order | Rule | Exclusion applies when | Skip reason |
-|---|---|---|---|
-| 0 | Not created yet | The quote's `created_at` is after "now" | None. The quote is invisible and is not counted. |
-| 1 | Closed | The derived status is `accepted` or `dismissed` | `closed` |
-| 2 | 60-day limit | The quote was created more than 60 days before "now" | `too_old` |
-| 3 | Per-quote cap | The quote has had 3 or more follow-ups, and no customer reply is waiting | `max follow-ups reached` |
-| 4 | Customer cooldown | We contacted this customer less than 3 days before "now", and they have not replied since | `cooldown` |
-| 5 | No signal | None of the four signals below matches | `no_signal` |
+| Order | Rule              | Exclusion applies when                                                                    | Skip reason                                      |
+| ----- | ----------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| 0     | Not created yet   | The quote's `created_at` is after "now"                                                   | None. The quote is invisible and is not counted. |
+| 1     | Closed            | The derived status is `accepted` or `dismissed`                                           | `closed`                                         |
+| 2     | 60-day limit      | The quote was created more than 60 days before "now"                                      | `too_old`                                        |
+| 3     | Per-quote cap     | The quote has had 3 or more follow-ups, and no customer reply is waiting                  | `max follow-ups reached`                         |
+| 4     | Customer cooldown | We contacted this customer less than 3 days before "now", and they have not replied since | `cooldown`                                       |
+| 5     | No signal         | None of the four signals below matches                                                    | `no_signal`                                      |
 
 ### The per-quote cap
 
@@ -96,10 +96,10 @@ reply is later than our last contact, the cooldown is lifted. A contact exactly
 
 Two details differ between the two checks above, on purpose:
 
-| | Per-quote cap exemption | Cooldown lift |
-|---|---|---|
-| Scope of the reply | This quote | Any of the customer's quotes |
-| Compared against | This quote's last outbound contact | The customer's last contact on any quote |
+|                    | Per-quote cap exemption            | Cooldown lift                            |
+| ------------------ | ---------------------------------- | ---------------------------------------- |
+| Scope of the reply | This quote                         | Any of the customer's quotes             |
+| Compared against   | This quote's last outbound contact | The customer's last contact on any quote |
 
 ### The 60-day limit
 
@@ -115,13 +115,13 @@ $ sqlite3 followup.sqlite3 "SELECT ROUND(julianday('2026-08-31T09:00:00Z') - jul
 
 `bin/followup candidates` prints a count per skip reason on its last line.
 
-| Skip reason | Meaning |
-|---|---|
-| `closed` | The quote is accepted or dismissed, from the snapshot or from an event |
-| `too_old` | The quote is more than 60 days old |
+| Skip reason              | Meaning                                                                            |
+| ------------------------ | ---------------------------------------------------------------------------------- |
+| `closed`                 | The quote is accepted or dismissed, from the snapshot or from an event             |
+| `too_old`                | The quote is more than 60 days old                                                 |
 | `max follow-ups reached` | The quote has had 3 follow-ups and the customer has not replied since the last one |
-| `cooldown` | The customer was contacted in the last 3 days and has not replied since |
-| `no_signal` | The quote is open and eligible, but nothing about it calls for a follow-up yet |
+| `cooldown`               | The customer was contacted in the last 3 days and has not replied since            |
+| `no_signal`              | The quote is open and eligible, but nothing about it calls for a follow-up yet     |
 
 Every quote that exists at "now" is either a candidate or counted under one
 skip reason. The seed data has 30 quotes, all created before A, so the
@@ -154,12 +154,12 @@ skipped: closed=3, max follow-ups reached=3
 Each eligible quote gets the first signal it matches, in this order. A quote
 never has two reasons.
 
-| Priority | Reason | Matches when | Threshold constants | Base score |
-|---|---|---|---|---|
-| 1 | `replied_unanswered` | A customer reply is waiting, as defined above | None | 100 |
-| 2 | `viewed_no_reply` | The last view was within 48 hours of "now", and there has been no reply and no outbound contact since that view | `VIEW_WINDOW_HOURS` | 70 |
-| 3 | `big_quote_cold` | The amount is $2,000 or more, and the quiet period is 7 days or more | `BIG_AMOUNT`, `BIG_QUIET_DAYS` | 50 |
-| 4 | `generic_checkin` | The quiet period is 5 days or more | `GENERIC_QUIET_DAYS` | 20 |
+| Priority | Reason               | Matches when                                                                                                    | Threshold constants            | Base score |
+| -------- | -------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------ | ---------- |
+| 1        | `replied_unanswered` | A customer reply is waiting, as defined above                                                                   | None                           | 100        |
+| 2        | `viewed_no_reply`    | The last view was within 48 hours of "now", and there has been no reply and no outbound contact since that view | `VIEW_WINDOW_HOURS`            | 70         |
+| 3        | `big_quote_cold`     | The amount is $2,000 or more, and the quiet period is 7 days or more                                            | `BIG_AMOUNT`, `BIG_QUIET_DAYS` | 50         |
+| 4        | `generic_checkin`    | The quiet period is 5 days or more                                                                              | `GENERIC_QUIET_DAYS`           | 20         |
 
 The quiet period runs from the quote's last outbound contact to "now". If
 nobody has contacted the customer, it runs from the quote's `created_at`.
@@ -169,12 +169,12 @@ nobody has contacted the customer, it runs from the quote's `created_at`.
 Each candidate carries a sentence explaining why it was picked. The parts in
 braces are filled in.
 
-| Reason | Text |
-|---|---|
-| `replied_unanswered` | Customer replied {time since reply} ago and nobody has answered |
-| `viewed_no_reply` | Viewed the quote {time since view} ago, no reply and no follow-up since |
-| `big_quote_cold` | {amount} quote with no contact in {quiet period} |
-| `generic_checkin` | No contact in {quiet period}, quote is {age} old |
+| Reason               | Text                                                                    |
+| -------------------- | ----------------------------------------------------------------------- |
+| `replied_unanswered` | Customer replied {time since reply} ago and nobody has answered         |
+| `viewed_no_reply`    | Viewed the quote {time since view} ago, no reply and no follow-up since |
+| `big_quote_cold`     | {amount} quote with no contact in {quiet period}                        |
+| `generic_checkin`    | No contact in {quiet period}, quote is {age} old                        |
 
 Durations under two days are printed in whole hours. Longer ones are printed
 in days to one decimal place.
@@ -250,11 +250,11 @@ The same three quotes appear with those scores in the full list at B in
 
 What each shows:
 
-| Quote | Shows |
-|---|---|
-| Q-1016 | The bonus below its cap |
+| Quote  | Shows                                                                    |
+| ------ | ------------------------------------------------------------------------ |
+| Q-1016 | The bonus below its cap                                                  |
 | Q-1026 | The bonus at its cap: the amount would give 22 points and 15 are counted |
-| Q-1025 | Age decay on a generic check-in |
+| Q-1025 | Age decay on a generic check-in                                          |
 
 ## Message templates
 
@@ -293,8 +293,6 @@ outbox: 51 rows  blocked=2 sent=49
 ```
 
 ## Other signals I would look for
-
-TODO (author): edit.
 
 - What the reply said: "too expensive" and "when can you start" need different messages
 - Repeat views: three views in a day means more than one
